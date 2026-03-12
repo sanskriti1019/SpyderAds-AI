@@ -4,6 +4,8 @@ import { getCache, setCache } from "@/lib/cache";
 const CACHE_KEY = "api:trends";
 const CACHE_TTL = 5 * 60 * 1000;
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

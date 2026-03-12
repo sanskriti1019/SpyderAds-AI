@@ -4,6 +4,8 @@ import { getCache, setCache } from "@/lib/cache";
 const CACHE_KEY = "api:ads";
 const CACHE_TTL = 60 * 1000;
 
+export const dynamic = "force-dynamic";
+
 async function getSupabase() {
   try {
     const { createServerSupabase } = await import("@/lib/supabase/server");
