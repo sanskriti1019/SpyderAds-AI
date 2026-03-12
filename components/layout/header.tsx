@@ -6,7 +6,7 @@ export function Header() {
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-transparent to-cyan-500/10 pointer-events-none" />
       <div className="flex items-baseline gap-3 relative">
         <h1 className="text-xl font-bold tracking-tight text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
-          Competitor Ad War Room
+          SpyderAds AI
         </h1>
         <span className="text-xs font-medium uppercase tracking-widest text-indigo-400">
           Analytics

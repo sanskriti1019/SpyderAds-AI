@@ -1,4 +1,4 @@
-# Competitor Ad War Room
+# SpyderAds AI
 
 AI-powered competitive intelligence dashboard for D2C marketing teams. Analyzes Meta Ad Library creatives and generates insights on competitor strategy, trends, and gaps.
 

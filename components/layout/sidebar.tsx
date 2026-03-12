@@ -19,7 +19,7 @@ export function Sidebar({ className }: { className?: string }) {
     <aside className={cn("flex w-64 flex-col glass-panel border-r border-white/5 bg-background/30 backdrop-blur-3xl", className)}>
       <div className="flex h-16 items-center border-b border-white/10 px-6">
         <span className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400 drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]">
-          War Room
+          SpyderAds AI
         </span>
       </div>
       <nav className="flex-1 space-y-2 px-4 py-6 relative">

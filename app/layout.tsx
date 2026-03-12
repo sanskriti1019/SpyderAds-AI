@@ -2,7 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Competitor Ad War Room",
+  title: "SpyderAds AI",
   description: "AI-powered competitor ad intelligence for D2C marketing teams",
 };
 
