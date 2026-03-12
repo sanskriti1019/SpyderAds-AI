@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitor Ad War Room</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: 'hsl(240, 10%, 4%)',
+                        foreground: 'hsl(210, 20%, 98%)',
+                        primary: 'hsl(252, 82%, 64%)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #030712 !important; /* gray-950 */
+            color: #ffffff !important;
+            font-family: 'Inter', sans-serif;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.15), transparent 25%);
+            background-attachment: fixed;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background-color: #111827 !important; /* gray-900 solid */
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(16px);
+        }
+
+        .card {
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            background-color: #111827 !important; /* gray-900 solid */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.3) !important;
+            transform: translateY(-4px);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom right, rgba(255,255,255,0.02), transparent);
+            pointer-events: none;
+        }
+
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="flex h-screen flex-col bg-gray-950 text-white antialiased">
+    <!-- Header -->
+    <header class="flex h-16 items-center justify-between border-b w-full border-white/5 bg-black/30 backdrop-blur-3xl px-6 relative z-10 glass-panel">
+        <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-transparent to-cyan-500/10 pointer-events-none"></div>
+        <div class="flex items-baseline gap-3 relative">
+            <h1 class="text-xl font-bold tracking-tight text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+                Competitor Ad War Room
+            </h1>
+            <span class="text-xs font-medium uppercase tracking-widest text-indigo-400">Analytics</span>
+        </div>
+        <div class="flex items-center gap-4 relative">
+            <span class="text-xs font-medium text-gray-400 flex items-center gap-2">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                Live Sync
+            </span>
+            <button class="h-8 px-3 rounded-md text-xs border border-indigo-500/30 hover:bg-indigo-500/10 hover:text-indigo-300 transition-all shadow-[0_0_15px_rgba(99,102,241,0.15)] bg-transparent text-white cursor-pointer">
+                Export Report
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative">
+        <!-- Sidebar -->
+        <aside class="flex w-64 flex-col glass-panel border-r border-white/5 bg-black/30 backdrop-blur-3xl z-10">
+            <nav class="flex-1 space-y-2 px-4 py-6 relative">
+                <div class="absolute top-0 left-0 w-[1px] h-full bg-gradient-to-b from-indigo-500/50 block pointer-events-none"></div>
+                
+                <a href="#" class="block rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 relative overflow-hidden group bg-indigo-500/10 text-indigo-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] border border-indigo-500/20">
+                    <span class="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-1/2 bg-indigo-500 rounded-r-md shadow-[0_0_10px_rgba(99,102,241,0.8)]"></span>
+                    <span class="relative z-10">Overview</span>
+                </a>
+                
+                <a href="#" class="block rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 relative overflow-hidden group text-gray-400 hover:bg-white/5 hover:text-white border border-transparent">
+                    <span class="relative z-10">Trends</span>
+                </a>
+                
+                <a href="#" class="block rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 relative overflow-hidden group text-gray-400 hover:bg-white/5 hover:text-white border border-transparent">
+                    <span class="relative z-10">Longevity</span>
+                </a>
+                
+                <a href="#" class="block rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 relative overflow-hidden group text-gray-400 hover:bg-white/5 hover:text-white border border-transparent">
+                    <span class="relative z-10">Gaps</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto px-6 py-8 relative z-0">
+            <div class="mx-auto flex max-w-7xl flex-col gap-6 pb-10">
+                <!-- Overview Cards -->
+                <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div class="card flex flex-col justify-between p-6 animate-fade-in-up" style="animation-delay: 0.1s;">
+                        <span class="text-xs font-medium text-gray-400">Active competitors</span>
+                        <span class="mt-2 text-3xl font-bold tracking-tight text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]">12</span>
+                    </div>
+                    <div class="card flex flex-col justify-between p-6 animate-fade-in-up" style="animation-delay: 0.2s;">
+                        <span class="text-xs font-medium text-gray-400">Active ads tracked</span>
+                        <span class="mt-2 text-3xl font-bold tracking-tight text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]">1,402</span>
+                    </div>
+                    <div class="card flex flex-col justify-between p-6 animate-fade-in-up" style="animation-delay: 0.3s;">
+                        <span class="text-xs font-medium text-gray-400">New creatives (30d)</span>
+                        <span class="mt-2 text-3xl font-bold tracking-tight text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]">342</span>
+                    </div>
+                </section>
+
+                <!-- Chart Section -->
+                <section class="grid gap-6 lg:grid-cols-3">
+                    <div class="card lg:col-span-2 p-6 animate-fade-in-up" style="animation-delay: 0.4s;">
+                        <div class="flex flex-col gap-1 mb-6">
+                            <h2 class="text-lg font-bold text-white tracking-tight drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]">Creative Trend Analysis</h2>
+                            <p class="text-sm text-gray-400">Share of testimonial vs video creatives over time</p>
+                        </div>
+                        <div class="h-72 w-full">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card p-6 animate-fade-in-up" style="animation-delay: 0.5s;">
+                        <div class="flex flex-col gap-1 mb-6">
+                            <h2 class="text-lg font-bold text-white tracking-tight drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]">Format Distribution</h2>
+                        </div>
+                        <div class="h-64 w-full flex justify-center items-center">
+                            <canvas id="formatChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+                
+                <section class="grid gap-6 lg:grid-cols-3">
+                    <div class="card p-6 col-span-1 animate-fade-in-up" style="animation-delay: 0.6s;">
+                        <h2 class="text-lg font-bold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] mb-4">Gap Opportunities</h2>
+                        <div class="space-y-4">
+                            <div class="p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+                                <h3 class="text-sm font-semibold text-indigo-300">Underutilized: UGC</h3>
+                                <p class="text-xs text-gray-400 mt-1">Competitors are reducing UGC spend by 15%, creating a gap in authentic storytelling.</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+                                <h3 class="text-sm font-semibold text-cyan-300">Emerging: Founder Led</h3>
+                                <p class="text-xs text-gray-400 mt-1">Increasing trend (+24%) in founder-led direct-response videos.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-6 col-span-2 animate-fade-in-up" style="animation-delay: 0.7s;">
+                        <h2 class="text-lg font-bold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] mb-4">Weekly AI Brief</h2>
+                        <div class="prose prose-invert max-w-none">
+                            <p class="text-sm text-gray-300">Overall market is shifting towards shorter, highly dynamic video cuts within the first 3 seconds. The primary color palette across Top 5 competitors has shifted to vibrant, high-contrast neons.</p>
+                            <ul class="text-sm text-gray-400 mt-3 list-disc pl-5">
+                                <li>Invest in 15-second "hook-first" formats.</li>
+                                <li>Reduce static image ads, as engagement has universally dropped.</li>
+                                <li>Capitalize on the "founder story" angle which has seen a 2x ROAS increase week-over-week.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Chart Defaults
+        Chart.defaults.color = '#9ca3af';
+        Chart.defaults.font.family = 'Inter, sans-serif';
+
+        // Trend Chart (Area)
+        const ctxTrend = document.getElementById('trendChart').getContext('2d');
+        
+        let gradientVideo = ctxTrend.createLinearGradient(0, 0, 0, 300);
+        gradientVideo.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
+        gradientVideo.addColorStop(1, 'rgba(99, 102, 241, 0)');
+        
+        let gradientTestimonial = ctxTrend.createLinearGradient(0, 0, 0, 300);
+        gradientTestimonial.addColorStop(0, 'rgba(6, 182, 212, 0.4)');
+        gradientTestimonial.addColorStop(1, 'rgba(6, 182, 212, 0)');
+
+        new Chart(ctxTrend, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [
+                    {
+                        label: 'Video Options',
+                        data: [30, 40, 55, 60],
+                        borderColor: '#6366f1',
+                        backgroundColor: gradientVideo,
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#6366f1',
+                        pointBorderColor: 'transparent',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    },
+                    {
+                        label: 'Testimonials',
+                        data: [20, 35, 50, 70],
+                        borderColor: '#06b6d4',
+                        backgroundColor: gradientTestimonial,
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#06b6d4',
+                        pointBorderColor: 'transparent',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { usePointStyle: true, boxWidth: 8 }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(17, 24, 39, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        usePointStyle: true,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+                        ticks: { padding: 10 }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+                        ticks: { padding: 10 }
+                    }
+                }
+            }
+        });
+
+        // Format Distribution Chart (Doughnut)
+        const ctxFormat = document.getElementById('formatChart').getContext('2d');
+        new Chart(ctxFormat, {
+            type: 'doughnut',
+            data: {
+                labels: ['Video', 'Static', 'Carousel'],
+                datasets: [{
+                    data: [55, 30, 15],
+                    backgroundColor: [
+                        '#6366f1',
+                        '#06b6d4',
+                        '#a855f7'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20, usePointStyle: true, boxWidth: 8 }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
