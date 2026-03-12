@@ -53,7 +53,7 @@ export function TrendChart({ title, subtitle, data, keys }: TrendChartProps) {
                 stroke={colors[i % colors.length]}
                 strokeWidth={3}
                 dot={{ r: 4, fill: colors[i % colors.length], strokeWidth: 0 }}
-                activeDot={{ r: 6, strokeWidth: 0, shadow: `0 0 10px ${colors[i % colors.length]}` }}
+                activeDot={{ r: 6, strokeWidth: 0 }}
                 className="drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]"
               />
             ))}

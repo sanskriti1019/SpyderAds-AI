@@ -5,6 +5,8 @@ import { getCache, setCache } from "@/lib/cache";
 const CACHE_KEY = "api:brands";
 const CACHE_TTL = 10 * 60 * 1000;
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const cached = getCache<unknown>(CACHE_KEY);

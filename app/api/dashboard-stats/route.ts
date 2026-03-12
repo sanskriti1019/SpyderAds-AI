@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getCache, setCache } from "@/lib/cache";
 
-const CACHE_KEY = "api:dashboard-stats";
-const CACHE_TTL = 2 * 60 * 1000;
+const CACHE_KEY = "api:dashboard:stats";
+const CACHE_TTL = 5 * 60 * 1000;
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
