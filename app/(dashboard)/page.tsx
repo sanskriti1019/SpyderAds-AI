@@ -1,8 +1,9 @@
 "use client";
 
-import { useActiveBrand, BRAND_CONFIG } from "@/lib/brand-context";
+import React from "react";
+import { useActiveBrand, BRAND_CONFIG, PrimaryBrand } from "@/lib/brand-context";
 import { useAds, useInsights, useWeeklyBrief, useDashboardStats } from "@/lib/hooks";
-import { getMockTrends, getMockInsights, getMockStats, getMockBrief, getMockGaps } from "@/lib/mock-data";
+import { getMockTrends, getMockInsights, getMockStats, getMockBrief } from "@/lib/mock-data";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendChart } from "@/components/charts/trend-chart";
