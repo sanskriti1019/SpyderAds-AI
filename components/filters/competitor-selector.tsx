@@ -10,11 +10,11 @@ interface CompetitorSelectorProps {
 
 export function CompetitorSelector({ competitors, value, onChange }: CompetitorSelectorProps) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs">
-      <span className="text-muted-foreground">Competitor</span>
+    <div className="inline-flex items-center gap-2 rounded-xl border border-gray-100 bg-white/50 px-4 py-2 text-sm shadow-sm transition-colors hover:bg-gray-50">
+      <span className="text-gray-400">Competitor</span>
       <select
         className={cn(
-          "bg-transparent text-sm font-medium outline-none",
+          "bg-transparent text-gray-900 font-medium outline-none cursor-pointer",
           "focus-visible:ring-0 focus-visible:outline-none"
         )}
         value={value ?? (competitors[0]?.name ?? "")}

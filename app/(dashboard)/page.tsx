@@ -105,27 +105,27 @@ export default function DashboardPage() {
           </>
         ) : (
           <>
-            <Card className="flex flex-col justify-between p-4">
-              <span className="text-xs font-medium text-muted-foreground">
+            <Card className="flex flex-col justify-between p-6">
+              <span className="text-sm font-medium text-gray-500">
                 Active competitors
               </span>
-              <span className="mt-2 text-2xl font-semibold tracking-tight">
+              <span className="mt-3 text-3xl font-bold tracking-tight text-gray-900 drop-shadow-sm">
                 {stats?.activeCompetitors ?? 0}
               </span>
             </Card>
-            <Card className="flex flex-col justify-between p-4">
-              <span className="text-xs font-medium text-muted-foreground">
+            <Card className="flex flex-col justify-between p-6">
+              <span className="text-sm font-medium text-gray-500">
                 Active ads tracked
               </span>
-              <span className="mt-2 text-2xl font-semibold tracking-tight">
+              <span className="mt-3 text-3xl font-bold tracking-tight text-gray-900 drop-shadow-sm">
                 {stats?.activeAds ?? 0}
               </span>
             </Card>
-            <Card className="flex flex-col justify-between p-4">
-              <span className="text-xs font-medium text-muted-foreground">
+            <Card className="flex flex-col justify-between p-6">
+              <span className="text-sm font-medium text-gray-500">
                 New creatives (30d)
               </span>
-              <span className="mt-2 text-2xl font-semibold tracking-tight">
+              <span className="mt-3 text-3xl font-bold tracking-tight text-gray-900 drop-shadow-sm">
                 {stats?.newCreatives30d ?? 0}
               </span>
             </Card>

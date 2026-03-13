@@ -29,17 +29,17 @@ interface FilterBarProps {
 
 export function FilterBar({ competitors, filters, onChange }: FilterBarProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-white/70 backdrop-blur-xl shadow-sm px-5 py-4">
       <div className="flex flex-wrap items-center gap-3">
         <CompetitorSelector
           competitors={competitors}
           value={filters.competitor}
           onChange={(competitor) => onChange({ ...filters, competitor })}
         />
-        <div className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs">
-          <span className="text-muted-foreground">Format</span>
+        <div className="inline-flex items-center gap-2 rounded-xl border border-gray-100 bg-white/50 px-4 py-2 text-sm shadow-sm transition-colors hover:bg-gray-50">
+          <span className="text-gray-400">Format</span>
           <select
-            className="bg-transparent text-sm outline-none"
+            className="bg-transparent text-gray-900 font-medium outline-none cursor-pointer"
             value={filters.format || "All formats"}
             onChange={(e) => onChange({ ...filters, format: e.target.value })}
           >
@@ -50,10 +50,10 @@ export function FilterBar({ competitors, filters, onChange }: FilterBarProps) {
             ))}
           </select>
         </div>
-        <div className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs">
-          <span className="text-muted-foreground">Theme</span>
+        <div className="inline-flex items-center gap-2 rounded-xl border border-gray-100 bg-white/50 px-4 py-2 text-sm shadow-sm transition-colors hover:bg-gray-50">
+          <span className="text-gray-400">Theme</span>
           <select
-            className="bg-transparent text-sm outline-none"
+            className="bg-transparent text-gray-900 font-medium outline-none cursor-pointer"
             value={filters.theme || "All themes"}
             onChange={(e) => onChange({ ...filters, theme: e.target.value })}
           >
@@ -65,10 +65,10 @@ export function FilterBar({ competitors, filters, onChange }: FilterBarProps) {
           </select>
         </div>
       </div>
-      <div className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs">
-        <span className="text-muted-foreground">Date range</span>
+      <div className="inline-flex items-center gap-2 rounded-xl border border-gray-100 bg-white/50 px-4 py-2 text-sm shadow-sm transition-colors hover:bg-gray-50">
+        <span className="text-gray-400">Date range</span>
         <select
-          className="bg-transparent text-sm outline-none"
+          className="bg-transparent text-gray-900 font-medium outline-none cursor-pointer"
           value={filters.range}
           onChange={(e) => onChange({ ...filters, range: e.target.value })}
         >
