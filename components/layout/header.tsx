@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { BrandSelector } from "@/components/layout/brand-selector";
 
 export function Header() {

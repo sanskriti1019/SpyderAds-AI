@@ -67,8 +67,8 @@ export async function GET(request: NextRequest) {
     let rows = adsData ?? [];
     const brandMap = new Map((rows as { brands?: { name: string } }[]).map((a) => [a.brand_id, (a as { brands?: { name: string } })?.brands?.name]));
 
-    const enriched = (rows as Record<string, unknown>[]).map((a) => {
-      const { brands, ...rest } = a as { brands?: { name: string }; [k: string]: unknown };
+    const enriched = (rows as any[]).map((a: any) => {
+      const { brands, ...rest } = a;
       return {
         ...rest,
         brand_name: (brands as { name?: string })?.name,
@@ -98,10 +98,10 @@ export async function GET(request: NextRequest) {
     const analysisQuery = supabase.from("ad_analysis").select("ad_id, theme_label, format_label").eq("is_latest", true);
     const { data: analysis } = await analysisQuery;
     const analysisByAd = new Map(
-      (analysis ?? []).map((a) => [(a as { ad_id: number }).ad_id, a as { theme_label?: string; format_label?: string }])
+      (analysis ?? []).map((a: any) => [a.ad_id as number, a as { theme_label?: string; format_label?: string }])
     );
 
-    let result = enriched.map((a) => {
+    let result = enriched.map((a: any) => {
       const id = a.id as number;
       const creatives0 = creativesByAd.get(id)?.[0];
       const a0 = analysisByAd.get(id);
@@ -109,8 +109,8 @@ export async function GET(request: NextRequest) {
         ...a,
         copy: creatives0?.copy,
         creative_url: creatives0?.creative_url,
-        format: creatives0?.format ?? a0?.format_label,
-        theme: a0?.theme_label,
+        format: creatives0?.format ?? (a0 as any)?.format_label,
+        theme: (a0 as any)?.theme_label,
         cta: creatives0?.cta,
         landing_page: creatives0?.landing_page,
       };

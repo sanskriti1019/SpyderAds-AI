@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
     if (error) throw error;
 
-    const trends = (data ?? []).map((t) => ({
+    const trends = (data ?? []).map((t: any) => ({
       ...t,
       brand_name: (t as { brands?: { name: string } })?.brands?.name,
     }));
