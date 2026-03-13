@@ -18,7 +18,7 @@ export default function GapsPage() {
       <h2 className="text-2xl font-bold tracking-tight">Market Gaps</h2>
       <p className="text-gray-500">Uncover untargeted audience segments and content vacuum.</p>
       <div className="max-w-3xl">
-        <GapOpportunities insights={gapInsights} />
+        <GapOpportunities insights={gapInsights as any} />
       </div>
     </div>
   );

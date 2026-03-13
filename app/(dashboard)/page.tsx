@@ -154,8 +154,8 @@ export default function DashboardPage() {
 
       {/* 6. Gap Opportunities + 7. Weekly AI Brief */}
       <section className="grid gap-4 lg:grid-cols-3">
-        <GapOpportunities insights={gapInsights} />
-        <InsightPanel title="Key Trends" insights={insights} />
+        <GapOpportunities insights={gapInsights as any} />
+        <InsightPanel title="Key Trends" insights={insights as any} />
         <WeeklyBrief
           brand={brief?.primary_brand_name}
           weekRange={
@@ -165,9 +165,9 @@ export default function DashboardPage() {
           }
           summary={brief?.summary_md ?? "No brief available yet."}
           bullets={
-            (brief?.insights_json as { trend?: string }[])
+            ((brief?.insights_json as { trend?: string }[])
               ?.map((i) => i.trend)
-              ?.filter(Boolean) ?? []
+              ?.filter(Boolean) as string[]) ?? []
           }
         />
       </section>
