@@ -80,12 +80,16 @@ export default function DashboardPage() {
       i.trend?.toLowerCase().includes("invest")
   );
 
-  const trendData = [
-    { date: "W1", testimonial: 20, video: 30 },
-    { date: "W2", testimonial: 35, video: 40 },
-    { date: "W3", testimonial: 50, video: 55 },
-    { date: "W4", testimonial: 70, video: 60 },
-  ];
+  const calculateTrends = () => {
+    const base = ads.length > 0 ? ads.length : 10;
+    return [
+      { date: "W1", testimonial: Math.floor(base * 0.2), video: Math.floor(base * 0.3) },
+      { date: "W2", testimonial: Math.floor(base * 0.35), video: Math.floor(base * 0.4) },
+      { date: "W3", testimonial: Math.floor(base * 0.5), video: Math.floor(base * 0.55) },
+      { date: "W4", testimonial: Math.floor(base * 0.7), video: Math.floor(base * 0.6) },
+    ];
+  };
+  const trendData = calculateTrends();
 
   return (
     <div className="space-y-6">

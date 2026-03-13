@@ -17,8 +17,11 @@ export async function GET() {
 
     if (error) throw error;
 
-    setCache(CACHE_KEY, data ?? [], CACHE_TTL);
-    return NextResponse.json(data ?? []);
+    const MOSAIC_BRANDS = ["Bebodywise", "Man Matters", "Little Joys"];
+    const filteredBrands = (data ?? []).filter((b) => !MOSAIC_BRANDS.includes(b.name));
+
+    setCache(CACHE_KEY, filteredBrands, CACHE_TTL);
+    return NextResponse.json(filteredBrands);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Internal error";
     return NextResponse.json({ error: msg }, { status: 500 });

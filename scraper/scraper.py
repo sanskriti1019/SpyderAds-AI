@@ -111,12 +111,12 @@ def upsert_creative(ad_id: int, creative: dict):
 # ─── Scraper ──────────────────────────────────────────────────────────────────
 
 async def scrape_brand(brand_name: str, search_query: str):
-    print(f"\n🔍  Scraping: {brand_name} (query: {search_query})")
+    print(f"\n[SCRAPING] {brand_name} (query: {search_query})")
     brand_id = upsert_brand(brand_name)
     ads_scraped = 0
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(headless=False)
         ctx = await browser.new_context(
             user_agent=(
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -135,7 +135,7 @@ async def scrape_brand(brand_name: str, search_query: str):
         try:
             await page.goto(url, wait_until="domcontentloaded", timeout=30000)
         except PWTimeout:
-            print(f"  ⚠  Timeout loading page for {brand_name}")
+            print(f"  [WARN] Timeout loading page for {brand_name}")
             await browser.close()
             return
 
@@ -143,7 +143,7 @@ async def scrape_brand(brand_name: str, search_query: str):
         try:
             await page.wait_for_selector("[data-testid='ad-archive-renderer']", timeout=15000)
         except PWTimeout:
-            print(f"  ⚠  No ad cards found for {brand_name}")
+            print(f"  [WARN] No ad cards found for {brand_name}")
             await browser.close()
             return
 
@@ -199,11 +199,11 @@ async def scrape_brand(brand_name: str, search_query: str):
                 upsert_creative(ad_id, ad)
                 ads_scraped += 1
             except Exception as e:
-                print(f"  ⚠  Failed to save ad: {e}")
+                print(f"  [WARN] Failed to save ad: {e}")
 
         await browser.close()
 
-    print(f"  ✅  Saved {ads_scraped} ads for {brand_name}")
+    print(f"  [DONE] Saved {ads_scraped} ads for {brand_name}")
 
 
 async def main(target_brand: str | None):
@@ -220,7 +220,7 @@ async def main(target_brand: str | None):
     for brand_name, search_query in brands_to_scrape:
         await scrape_brand(brand_name, search_query)
 
-    print("\n🎉  Scraping complete!")
+    print("\n[COMPLETE] Scraping done!")
 
 
 if __name__ == "__main__":

@@ -130,7 +130,7 @@ def analyse_all(target_brand: str | None):
         else:
             result = classify_ad_rule_based(body, fmt)
 
-        supabase.table("ad_analysis").upsert(
+        supabase.table("ad_analysis").insert(
             {
                 "ad_id": ad["id"],
                 "format_label": result["format_label"],
@@ -139,8 +139,7 @@ def analyse_all(target_brand: str | None):
                 "angle": result.get("angle", ""),
                 "is_latest": True,
                 "analyzed_at": datetime.now(timezone.utc).isoformat(),
-            },
-            on_conflict="ad_id",
+            }
         ).execute()
         brand_name = (ad.get("brands") or {}).get("name", "?")
         print(f"  ✅  {brand_name} | {result['theme_label']} | {result['format_label']}")
