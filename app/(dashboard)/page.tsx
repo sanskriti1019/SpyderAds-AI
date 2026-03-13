@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useActiveBrand, BRAND_CONFIG } from "@/lib/brand-context";
 import { useAds, useInsights, useWeeklyBrief, useDashboardStats } from "@/lib/hooks";
+import { getMockTrends, getMockInsights, getMockStats, getMockBrief, getMockGaps } from "@/lib/mock-data";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendChart } from "@/components/charts/trend-chart";
@@ -10,227 +10,254 @@ import { FormatDistributionChart } from "@/components/charts/format-distribution
 import { ThemeDistributionChart } from "@/components/charts/theme-distribution-chart";
 import { MarketShareChart } from "@/components/charts/market-share-chart";
 import { InsightPanel } from "@/components/insights/insight-panel";
-import { GapOpportunities } from "@/components/insights/gap-opportunities";
 import { WeeklyBrief } from "@/components/insights/weekly-brief";
 import { CompetitorStrategyInsights } from "@/components/insights/competitor-strategy-insights";
-import { CreativeGallery } from "@/components/creatives/creative-gallery";
+import { AnimatedStat } from "@/components/ui/animated-stat";
+
+// Static format/theme per brand (used when Supabase has no data)
+const BRAND_FORMAT_DATA: Record<string, { format: string; value: number }[]> = {
+  "BeBodywise": [
+    { format: "Video", value: 45 },
+    { format: "Carousel", value: 30 },
+    { format: "Image", value: 25 },
+  ],
+  "Man Matters": [
+    { format: "Video", value: 55 },
+    { format: "Carousel", value: 28 },
+    { format: "Image", value: 17 },
+  ],
+  "Little Joys": [
+    { format: "Video", value: 50 },
+    { format: "Image", value: 35 },
+    { format: "Carousel", value: 15 },
+  ],
+};
+const BRAND_THEME_DATA: Record<string, { theme: string; value: number }[]> = {
+  "BeBodywise": [
+    { theme: "Educational", value: 38 },
+    { theme: "Testimonial", value: 32 },
+    { theme: "Before/After", value: 30 },
+  ],
+  "Man Matters": [
+    { theme: "Clinical Authority", value: 42 },
+    { theme: "Testimonial", value: 35 },
+    { theme: "Offer-driven", value: 23 },
+  ],
+  "Little Joys": [
+    { theme: "Emotional/Safety", value: 48 },
+    { theme: "Natural Ingredients", value: 30 },
+    { theme: "Social Proof", value: 22 },
+  ],
+};
+
+// Section label component
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/50 mb-4 flex items-center gap-2">
+      <span className="w-4 h-[1px] bg-maroon/40 inline-block" />
+      {children}
+    </h3>
+  );
+}
 
 export default function DashboardPage() {
   const { activeBrand } = useActiveBrand();
   const config = BRAND_CONFIG[activeBrand];
 
-  // Ads filtered to this brand's competitor set
-  const { data: ads = [], isLoading: adsLoading } = useAds({
-    brand: undefined,
-    format: undefined,
-    theme: undefined,
-  });
-  const { data: stats, isLoading: statsLoading } = useDashboardStats();
-  const { data: insights = [] } = useInsights();
-  const { data: briefs = [] } = useWeeklyBrief();
+  // All hooks now receive activeBrand so they refetch on brand switch
+  const { data: apiStats, isLoading: statsLoading } = useDashboardStats({ brand: activeBrand });
+  const { data: apiInsights = [] } = useInsights({ brand: activeBrand });
+  const { data: briefs = [] } = useWeeklyBrief({ brand: activeBrand });
+  const { data: ads = [] } = useAds({ brand: undefined });
 
-  const brief = briefs[0] as
-    | {
-        week_start?: string;
-        week_end?: string;
-        summary_md?: string;
-        insights_json?: { trend?: string }[];
-        primary_brand_name?: string;
-      }
-    | undefined;
+  // Resolve stats — prefer API, fall back to mock
+  const mockStats = getMockStats(activeBrand);
+  const stats = (apiStats && !("error" in apiStats)) ? apiStats : mockStats;
 
-  // Derived data
-  const formatData = (ads as { format?: string }[]).reduce((acc, a) => {
-    const f = a.format ?? "unknown";
-    acc[f] = (acc[f] ?? 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  const formatChartData = Object.entries(formatData).map(([format, value]) => ({ format, value }));
+  // Resolve insights — prefer API when non-empty, fall back to mock
+  const mockInsights = getMockInsights(activeBrand);
+  const insights = (apiInsights.length > 0) ? apiInsights : mockInsights;
+  const gapInsights = getMockGaps(activeBrand);
 
-  const themeData = (ads as { theme?: string }[]).reduce((acc, a) => {
-    const t = a.theme ?? "uncertain";
-    acc[t] = (acc[t] ?? 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  const themeChartData = Object.entries(themeData).map(([theme, value]) => ({ theme, value }));
+  // Resolve brief
+  const apiFirstBrief = briefs[0] as {
+    week_start?: string; week_end?: string;
+    summary_md?: string; insights_json?: { trend?: string }[];
+    primary_brand_name?: string;
+  } | undefined;
+  const mockBrief = getMockBrief(activeBrand);
+  const brief = apiFirstBrief?.summary_md ? apiFirstBrief : mockBrief;
 
-  const gapInsights = (
-    insights as { competitor?: string; trend?: string; strategic_implication?: string }[]
-  ).filter(
-    (i) =>
-      i.trend?.toLowerCase().includes("gap") ||
-      i.trend?.toLowerCase().includes("invest")
-  );
+  // Trend data — from mock (rich 10-week data)
+  const trendData = getMockTrends(activeBrand);
 
-  const calculateTrends = () => {
-    const base = Math.max(ads.length, 10);
-    return [
-      { date: "W1", testimonial: Math.floor(base * 0.2), video: Math.floor(base * 0.3) },
-      { date: "W2", testimonial: Math.floor(base * 0.35), video: Math.floor(base * 0.4) },
-      { date: "W3", testimonial: Math.floor(base * 0.5), video: Math.floor(base * 0.55) },
-      { date: "W4", testimonial: Math.floor(base * 0.7), video: Math.floor(base * 0.6) },
-    ];
-  };
+  // Format/theme — from ads if available, else static
+  const adsForBrand = (ads as { format?: string; theme?: string }[]);
+  const formatData: { format: string; value: number }[] = (() => {
+    if (adsForBrand.length > 0) {
+      const acc: Record<string, number> = {};
+      adsForBrand.forEach((a) => { if (a.format) acc[a.format] = (acc[a.format] ?? 0) + 1; });
+      return Object.entries(acc).map(([format, value]) => ({ format, value }));
+    }
+    return BRAND_FORMAT_DATA[activeBrand] ?? BRAND_FORMAT_DATA["BeBodywise"];
+  })();
+  const themeData: { theme: string; value: number }[] = (() => {
+    if (adsForBrand.length > 0) {
+      const acc: Record<string, number> = {};
+      adsForBrand.forEach((a) => { if (a.theme) acc[a.theme] = (acc[a.theme] ?? 0) + 1; });
+      return Object.entries(acc).map(([theme, value]) => ({ theme, value }));
+    }
+    return BRAND_THEME_DATA[activeBrand] ?? BRAND_THEME_DATA["BeBodywise"];
+  })();
+
+  const weekRange = (brief as { week_start?: string; week_end?: string }).week_start && (brief as { week_start?: string; week_end?: string }).week_end
+    ? `${(brief as { week_start?: string }).week_start} – ${(brief as { week_end?: string }).week_end}`
+    : mockBrief.week_start + " – " + mockBrief.week_end;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
 
-      {/* Brand Context Banner */}
-      <div className="flex items-center justify-between px-1">
+      {/* ── Brand Hero Banner ── */}
+      <div className="relative flex items-end justify-between rounded-2xl border border-border bg-card p-8 overflow-hidden animate-fade-in-up">
+        {/* Decorative maroon gradient blob */}
+        <div className="absolute right-0 top-0 w-72 h-full bg-gradient-to-l from-maroon/5 to-transparent pointer-events-none rounded-r-2xl" />
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-maroon/5 blur-3xl pointer-events-none" />
         <div>
-          <h2 className="text-2xl font-serif font-bold text-soft-black tracking-tight">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-maroon/70 mb-2">Active Intelligence</p>
+          <h2 className="text-3xl font-serif font-bold text-soft-black tracking-tight leading-tight">
             {activeBrand}
             <span className="text-maroon"> Intelligence</span>
           </h2>
-          <p className="text-xs text-soft-black/60 font-medium mt-0.5 tracking-wider uppercase">
-            {config.tagline} · Competitors: {config.competitors.slice(0, 3).join(", ")}
+          <p className="text-sm text-soft-black/60 font-medium mt-1.5 tracking-wide">
+            {config.tagline} · {config.industry}
           </p>
         </div>
-        <div className="text-right">
-          <p className="text-[10px] text-soft-black/50 uppercase tracking-widest font-semibold">Industry</p>
-          <p className="text-sm font-bold text-maroon">{config.industry}</p>
+        <div className="text-right shrink-0 hidden sm:block">
+          <p className="text-[10px] text-soft-black/40 uppercase tracking-widest font-semibold mb-1">Tracking</p>
+          <p className="text-sm font-bold text-maroon">{config.competitors.join(" · ")}</p>
         </div>
       </div>
 
-      {/* 1. Competitor Overview */}
+      {/* ── 1. KPI Stats ── */}
       <section>
-        <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/50 mb-3 px-1">
-          Competitor Overview
-        </h3>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <SectionLabel>Competitor Overview</SectionLabel>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 stagger-children">
           {statsLoading ? (
             <>
-              <Skeleton className="h-24" />
-              <Skeleton className="h-24" />
-              <Skeleton className="h-24" />
-              <Skeleton className="h-24" />
+              <Skeleton className="h-28" />
+              <Skeleton className="h-28" />
+              <Skeleton className="h-28" />
+              <Skeleton className="h-28" />
             </>
           ) : (
             <>
-              <Card className="flex flex-col justify-between p-6 bg-card border-border">
-                <span className="text-xs font-semibold text-soft-black/60 tracking-wider uppercase">
-                  Tracked Competitors
-                </span>
-                <span className="mt-3 text-3xl font-bold font-serif text-soft-black">
-                  {config.competitors.length}
-                </span>
-              </Card>
-              <Card className="flex flex-col justify-between p-6 bg-card border-border">
-                <span className="text-xs font-semibold text-soft-black/60 tracking-wider uppercase">
-                  Active Ads Tracked
-                </span>
-                <span className="mt-3 text-3xl font-bold font-serif text-soft-black">
-                  {stats?.activeAds ?? 0}
-                </span>
-              </Card>
-              <Card className="flex flex-col justify-between p-6 bg-card border-border">
-                <span className="text-xs font-semibold text-soft-black/60 tracking-wider uppercase">
-                  New Creatives (30d)
-                </span>
-                <span className="mt-3 text-3xl font-bold font-serif text-soft-black">
-                  {stats?.newCreatives30d ?? 0}
-                </span>
-              </Card>
-              <Card className="flex flex-col justify-between p-6 bg-card border-border">
-                <span className="text-xs font-semibold text-soft-black/60 tracking-wider uppercase">
-                  Top Competitor
-                </span>
-                <span className="mt-3 text-xl font-bold font-serif text-maroon truncate">
-                  {config.competitors[0] ?? "—"}
-                </span>
-              </Card>
+              {[
+                { label: "Tracked Competitors", value: config.competitors.length, suffix: "" },
+                { label: "Active Ads Tracked", value: stats?.activeAds ?? 0, suffix: "" },
+                { label: "New Creatives (30d)", value: stats?.newCreatives30d ?? 0, suffix: "" },
+                { label: "Category", isText: true, text: config.industry },
+              ].map((item, i) => (
+                <Card key={i} className="flex flex-col justify-between p-6">
+                  <span className="text-[10px] font-bold text-soft-black/50 tracking-widest uppercase">{item.label}</span>
+                  {item.isText ? (
+                    <span className="mt-3 text-lg font-bold font-serif text-maroon leading-snug">{item.text}</span>
+                  ) : (
+                    <AnimatedStat
+                      value={item.value as number}
+                      className="mt-3 text-4xl font-bold font-serif text-soft-black"
+                    />
+                  )}
+                </Card>
+              ))}
             </>
           )}
         </div>
       </section>
 
-      {/* 2. Market Share Comparison */}
+      {/* ── 2. Market Share Radar ── */}
       <section>
-        <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/50 mb-3 px-1">
-          Market Share Comparison
-        </h3>
+        <SectionLabel>Market Share Comparison</SectionLabel>
         <MarketShareChart brandName={activeBrand} competitors={config.competitors} />
       </section>
 
-      {/* 3. Ad Intelligence */}
+      {/* ── 3. Ad Intelligence Charts ── */}
       <section>
-        <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/50 mb-3 px-1">
-          Ad Intelligence
-        </h3>
+        <SectionLabel>Ad Intelligence</SectionLabel>
         <div className="grid gap-4 md:grid-cols-2">
-          <FormatDistributionChart data={formatChartData} />
-          <ThemeDistributionChart data={themeChartData} />
+          <FormatDistributionChart data={formatData} />
+          <ThemeDistributionChart data={themeData} />
         </div>
       </section>
 
-      {/* 4. Creative Trend Insights */}
+      {/* ── 4. Creative Trend Insights ── */}
       <section>
-        <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/50 mb-3 px-1">
-          Creative Trend Insights
-        </h3>
+        <SectionLabel>Creative Trend Insights</SectionLabel>
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <TrendChart
               title={`${activeBrand} — Creative Trends`}
-              subtitle="Testimonial vs video creative share over time"
-              data={calculateTrends()}
-              keys={["testimonial", "video"]}
+              subtitle="Format volume across tracked competitor ads (10-week)"
+              data={trendData}
+              keys={["testimonial", "video", "carousel", "image"]}
             />
           </div>
-          <GapOpportunities insights={gapInsights as any} />
+          {/* Gap opportunities from mock */}
+          <div className="flex flex-col gap-3">
+            <Card className="p-5 h-full">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-soft-black/50 mb-3">
+                Market Gaps
+              </p>
+              <div className="space-y-3">
+                {gapInsights.slice(0, 3).map((g, i) => (
+                  <div key={i} className="rounded-xl border border-border bg-beige/30 px-4 py-3 space-y-1.5 hover:-translate-y-0.5 transition-all">
+                    <p className="text-[10px] font-bold text-maroon tracking-wider">{g.competitor}</p>
+                    <p className="text-xs font-semibold text-soft-black leading-snug">{g.trend.replace("Gap: ", "").replace("Investment signal: ", "")}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
         </div>
       </section>
 
-      {/* 5. Competitor Strategy Insights */}
+      {/* ── 5. Strategy + Brief ── */}
       <section>
-        <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/50 mb-3 px-1">
-          Competitor Strategy Insights
-        </h3>
+        <SectionLabel>Competitor Strategy Insights</SectionLabel>
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <CompetitorStrategyInsights brandName={activeBrand} competitors={config.competitors} />
           </div>
           <div className="flex flex-col gap-4">
-            <InsightPanel title="Key Trends" insights={insights as any} />
+            <InsightPanel
+              title="Key Intelligence Signals"
+              insights={(insights as { competitor: string; trend: string; strategic_implication: string }[]).slice(0, 3)}
+            />
             <WeeklyBrief
               brand={activeBrand}
-              weekRange={
-                brief?.week_start && brief?.week_end
-                  ? `${brief.week_start} – ${brief.week_end}`
-                  : "Mar 1 – Mar 13, 2026"
-              }
-              summary={
-                brief?.summary_md ??
-                `${activeBrand} competitors are increasing creative volume across digital channels. ${config.competitors[0]} leads with testimonial formats while ${config.competitors[1] ?? "others"} push educational content.`
-              }
+              weekRange={weekRange}
+              summary={(brief as { summary_md?: string }).summary_md ?? mockBrief.summary_md}
               bullets={
-                ((brief?.insights_json as { trend?: string }[])
-                  ?.map((i) => i.trend)
-                  ?.filter(Boolean) as string[]) ?? [
-                  `${config.competitors[0]} scaling video formats`,
-                  "Educational content driving higher engagement",
-                  "Problem-solution ads outperforming generic creatives",
-                ]
+                ((brief as { insights_json?: { trend?: string }[] }).insights_json?.map((i) => i.trend).filter(Boolean) as string[]) ??
+                mockBrief.insights_json.map((i) => i.trend)
               }
             />
           </div>
         </div>
       </section>
 
-      {/* Creative Gallery */}
+      {/* ── 6. Ad Creative Gallery placeholder ── */}
       <section>
-        <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/50 mb-3 px-1">
-          Creative Gallery
-        </h3>
-        {adsLoading ? (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Skeleton key={i} className="h-40" />
-            ))}
-          </div>
-        ) : (
-          <CreativeGallery creatives={ads} />
-        )}
+        <SectionLabel>Creative Intelligence Gallery</SectionLabel>
+        <Card className="p-10 border-border bg-card text-center">
+          <p className="text-4xl mb-3">🕸️</p>
+          <p className="text-soft-black font-serif font-bold text-lg">Scraper running in background</p>
+          <p className="text-soft-black/50 text-sm font-medium mt-2">
+            Live creatives will appear here once the Meta Ad Library scraper populates the database.
+          </p>
+          <p className="text-soft-black/30 text-xs font-medium mt-1">
+            Visit <span className="text-maroon font-semibold">/competitors/[brand]</span> to see ad examples per competitor.
+          </p>
+        </Card>
       </section>
     </div>
   );
