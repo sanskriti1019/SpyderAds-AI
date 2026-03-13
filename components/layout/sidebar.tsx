@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 const nav = [
   { href: "/", label: "Overview", icon: "◈" },
   { href: "/competitors", label: "Competitors", icon: "⊕" },
+  { href: "/compare", label: "Compare", icon: "⇌" },
   { href: "/trends", label: "Trends", icon: "↗" },
   { href: "/longevity", label: "Longevity", icon: "◎" },
   { href: "/gaps", label: "Gaps", icon: "△" },
