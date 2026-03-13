@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { SimpleMarkdown } from "@/components/ui/simple-markdown";
 
 interface Insight {
   competitor: string;
@@ -35,10 +36,12 @@ export function InsightPanel({ title, insights }: InsightPanelProps) {
               <p className="text-[10px] font-bold text-maroon tracking-widest uppercase">
                 {i.competitor}
               </p>
-              <p className="text-sm text-soft-black font-semibold leading-snug">{i.trend}</p>
-              <p className="text-xs text-soft-black/70 leading-relaxed font-medium">
-                {i.strategic_implication}
-              </p>
+              <div className="text-sm text-soft-black font-semibold leading-snug">
+                <SimpleMarkdown content={i.trend} />
+              </div>
+              <div className="text-xs text-soft-black/70 leading-relaxed font-medium">
+                <SimpleMarkdown content={i.strategic_implication} />
+              </div>
             </div>
           ))}
         </div>

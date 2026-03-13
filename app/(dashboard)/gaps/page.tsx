@@ -5,13 +5,15 @@ import { useInsights } from "@/lib/hooks";
 import { getMockInsights, getMockGaps } from "@/lib/mock-data";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MagneticCard } from "@/components/ui/magnetic-card";
 
-const PRIORITY_LABELS = ["Critical", "High", "Medium", "Medium", "Explore"] as const;
+const PRIORITY_LABELS = ["Critical", "High", "Significant", "Moderate", "Opportunity"] as const;
 const PRIORITY_STYLES: Record<string, string> = {
-  "Critical": "text-white bg-maroon border-maroon",
+  "Critical": "text-white bg-maroon border-maroon shadow-md shadow-maroon/20",
   "High": "text-maroon bg-maroon/10 border-maroon/20",
-  "Medium": "text-soft-black bg-beige border-border",
-  "Explore": "text-soft-black/60 bg-beige/50 border-border/50",
+  "Significant": "text-soft-black bg-beige border-border shadow-sm",
+  "Moderate": "text-soft-black/60 bg-beige/50 border-border/50",
+  "Opportunity": "text-soft-black/40 bg-card border-border/30",
 };
 
 export default function GapsPage() {
@@ -22,7 +24,7 @@ export default function GapsPage() {
     : getMockInsights(activeBrand);
 
   const gapInsights = rawInsights.filter(
-    (i: { trend: string }) =>
+    (i: any) =>
       i.trend?.toLowerCase().includes("gap") ||
       i.trend?.toLowerCase().includes("investment signal")
   );
@@ -30,82 +32,111 @@ export default function GapsPage() {
   const allInsights = getMockGaps(activeBrand).length > 0 ? getMockGaps(activeBrand) : gapInsights;
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h2 className="text-3xl font-serif font-bold text-soft-black tracking-tight">
-          <span className="text-maroon">{activeBrand}</span> — Market Gap Analysis
-        </h2>
-        <p className="text-sm text-soft-black/60 font-medium mt-1">
-          Untapped content territories and advertising white spaces your competitors haven't claimed
-        </p>
+    <div className="space-y-12 animate-fade-in-up">
+      {/* Header — Premium Model */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-maroon/70 mb-1.5">Strategic White Space</p>
+          <h2 className="text-3xl font-serif font-bold text-soft-black tracking-tight">
+            Market <span className="text-maroon">Gap</span> Intelligence
+          </h2>
+          <p className="text-sm text-soft-black/60 font-medium mt-1.5 max-w-xl">
+             Identifying uncontested content territories and customer pain-points that competitors are failing to address. These represent the highest alpha opportunities for {activeBrand}.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+           <span className="w-2.5 h-2.5 rounded-full bg-maroon animate-pulse" />
+           <span className="text-[10px] font-black uppercase tracking-widest text-maroon">Scan Complete</span>
+        </div>
       </div>
 
-      {/* Summary Banner */}
-      <Card className="p-5 border-maroon/20 bg-maroon/5">
-        <p className="text-sm font-semibold text-soft-black/80 leading-relaxed">
-          <span className="text-maroon font-bold">How to read this:</span>{" "}
-          Each insight below represents a specific content territory, audience segment, or ad format gap identified by analysing what competitors are <em>not</em> doing. These are your highest-leverage opportunities to differentiate {activeBrand} and capture market share that competitors have left uncontested.
-        </p>
+      {/* Summary Banner — Premium Style */}
+      <Card className="p-8 border-maroon/20 bg-card shadow-xl relative overflow-hidden group reveal">
+        <div className="absolute inset-0 bg-maroon/[0.02] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-48 h-full bg-gradient-to-l from-maroon/[0.05] to-transparent pointer-events-none" />
+        
+        <div className="relative z-10 space-y-4">
+          <h3 className="text-xl font-serif font-bold text-soft-black leading-tight">
+             How to exploit the <span className="text-maroon">White Space</span>
+          </h3>
+          <p className="text-base text-soft-black/80 font-medium leading-relaxed max-w-2xl">
+            Our AI has identified {allInsights.length} critical gaps in the current competitive cluster. Each "Gap" represents a segment where competitors have low ad-spend and low relevance. Differentiating {activeBrand} in these sectors will yield the lowest Customer Acquisition Cost (CAC).
+          </p>
+        </div>
       </Card>
 
-      {/* Gap Cards */}
-      {isLoading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28" />)}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {allInsights.map((gap: { competitor: string; trend: string; strategic_implication: string }, i: number) => {
-            const priority = PRIORITY_LABELS[i] ?? "Explore";
+      {/* Individual Gap Cards — Enhanced Layout */}
+      <div className="space-y-6 stagger-children reveal">
+        {isLoading ? (
+          [1, 2, 3].map((i) => <Skeleton key={i} className="h-40 rounded-3xl" />)
+        ) : (
+          allInsights.map((gap: any, i: number) => {
+            const priority = PRIORITY_LABELS[i] ?? "Opportunity";
             return (
-              <Card
+              <MagneticCard
                 key={i}
-                className="p-6 border-border bg-card hover:-translate-y-0.5 hover:shadow-md transition-all"
+                className="group border-border shadow-md hover:shadow-2xl transition-all duration-500"
               >
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl font-serif font-black text-soft-black/20">
-                      {String(i + 1).padStart(2, "0")}
+                <div className="p-8">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pb-6 border-b border-border/40">
+                    <div className="flex items-start gap-6">
+                      <div className="w-14 h-14 shrink-0 rounded-2xl bg-beige flex items-center justify-center font-serif text-2xl font-black text-maroon shadow-sm group-hover:scale-110 transition-transform duration-500">
+                        {String(i + 1).padStart(2, "0")}
+                      </div>
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] uppercase tracking-widest font-black text-maroon/50">{gap.competitor} Perimeter Gap</p>
+                        <h4 className="text-2xl font-serif font-bold text-soft-black tracking-tight leading-tight group-hover:text-maroon transition-colors">{gap.trend}</h4>
+                      </div>
+                    </div>
+                    <span className={`self-start text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border ${PRIORITY_STYLES[priority]}`}>
+                      {priority}
                     </span>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-widest font-bold text-maroon/70">{gap.competitor}</p>
-                      <p className="text-base font-bold text-soft-black font-serif leading-snug mt-0.5">{gap.trend}</p>
+                  </div>
+                  
+                  <div className="mt-6 flex flex-col md:flex-row gap-8">
+                    <div className="flex-1 space-y-3">
+                      <p className="text-[10px] uppercase tracking-widest font-black text-soft-black/20">Strategic Implication</p>
+                      <p className="text-base text-soft-black/70 font-medium leading-relaxed italic font-serif">
+                        "{gap.strategic_implication}"
+                      </p>
+                    </div>
+                    <div className="md:w-64 space-y-3">
+                      <p className="text-[10px] uppercase tracking-widest font-black text-soft-black/20">Recommended Activation</p>
+                      <button className="w-full py-3 bg-soft-black text-white text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:bg-maroon hover:-translate-y-1 transition-all duration-300">
+                        Brief Creative Team
+                      </button>
                     </div>
                   </div>
-                  <span className={`shrink-0 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${PRIORITY_STYLES[priority]}`}>
-                    {priority}
-                  </span>
                 </div>
-                <div className="ml-10 pt-3 border-t border-border/50">
-                  <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/40 mb-1.5">Strategic Implication</p>
-                  <p className="text-sm text-soft-black/80 font-medium leading-relaxed">
-                    {gap.strategic_implication}
-                  </p>
-                </div>
-              </Card>
+              </MagneticCard>
             );
-          })}
-        </div>
-      )}
+          })
+        )}
+      </div>
 
-      {/* Action Framework */}
-      <section>
-        <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/50 mb-4">
-          Gap Activation Framework
-        </h3>
-        <div className="grid gap-4 md:grid-cols-3">
+      {/* Activation Framework — Master Style */}
+      <section className="reveal">
+        <div className="mb-6 flex items-center justify-between">
+           <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/40 flex items-center gap-2">
+            <span className="w-5 h-[1.5px] bg-maroon/50 inline-block" />
+            Gap Activation Framework
+          </h3>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
           {[
-            { label: "Quick Wins (0–2 weeks)", items: ["Launch 1 educational carousel addressing the top gap", "Add a diagnostic/quiz CTA to existing ad sets", "Repurpose competitor-style format with unique differentiator"] },
-            { label: "Medium-Term (1–2 months)", items: ["Develop a content vertical for the highest-priority gap", "Build a lead magnet targeting the underserved audience segment", "Partner with a credibility authority (doctor, expert) for content"] },
-            { label: "Long-Term (3+ months)", items: ["Own the gap territory with sustained content investment", "Build community around the underserved pain point", "Launch product or service specifically addressing the gap"] },
+            { label: "Phase 1: Alpha Testing", items: ["Launch 2 educational carousels", "A/B test the gap-specific hook", "Analyze CTR against benchmarks"] },
+            { label: "Phase 2: Consolidation", items: ["Scale winning gap hooks with Video", "Deploy high-authority lead magnets", "Establish community presence"] },
+            { label: "Phase 3: Dominance", items: ["Own search keywords for territory", "Secure authority endorsements", "Long-form content dominance"] },
           ].map((col, i) => (
-            <Card key={i} className="p-5 border-border bg-card">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50 mb-3">{col.label}</p>
-              <ul className="space-y-2">
+            <Card key={i} className="p-7 border-border group hover:border-maroon/30 transition-all duration-500 shadow-lg">
+              <p className="text-[10px] uppercase tracking-widest font-black text-soft-black/30 mb-5 group-hover:text-maroon/50 transition-colors">{col.label}</p>
+              <ul className="space-y-4">
                 {col.items.map((item, j) => (
-                  <li key={j} className="flex items-start gap-2 text-xs font-semibold text-soft-black/80 leading-relaxed">
-                    <span className="text-maroon shrink-0 mt-0.5">→</span> {item}
+                  <li key={j} className="flex items-start gap-4">
+                    <span className="w-5 h-5 rounded-full bg-beige border border-border flex items-center justify-center text-[10px] font-bold text-soft-black/40 group-hover:text-maroon group-hover:border-maroon/20">
+                      {j + 1}
+                    </span>
+                    <span className="text-xs font-bold text-soft-black/80 leading-relaxed group-hover:text-soft-black transition-colors">{item}</span>
                   </li>
                 ))}
               </ul>

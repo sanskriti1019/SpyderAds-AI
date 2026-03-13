@@ -1,41 +1,46 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { BrandSelector } from "@/components/layout/brand-selector";
 
 export function Header() {
   return (
-    <header className="flex h-16 items-center justify-between border-b border-border bg-card/70 backdrop-blur-3xl px-6 relative z-10 glass-panel gap-4">
-      {/* Logo */}
-      <div className="flex items-baseline gap-3 relative shrink-0">
-        <h1 className="text-xl font-serif font-bold tracking-tight text-soft-black drop-shadow-sm">
-          SpyderAds AI
-        </h1>
-        <span className="text-xs font-semibold uppercase tracking-widest text-maroon/80">
-          Analytics
-        </span>
+    <header className="flex h-20 items-center justify-between px-10 relative z-50 gap-6 glass-panel border-b border-border/40">
+      {/* Dynamic Breadcrumb / Title Context */}
+      <div className="flex items-center gap-4 shrink-0">
+        <div className="flex flex-col">
+          <h2 className="text-sm font-black tracking-[0.2em] text-soft-black/40 uppercase font-serif">
+            Station <span className="text-maroon/40">01</span>
+          </h2>
+          <div className="flex items-center gap-2 mt-0.5">
+             <span className="text-[11px] font-bold text-soft-black">MARKET_INTEL</span>
+             <span className="text-soft-black/20 text-[10px]">/</span>
+             <span className="text-[11px] font-bold text-maroon animate-pulse">STRATEGIC_OVERVIEW</span>
+          </div>
+        </div>
       </div>
 
-      {/* Brand Selector — center */}
-      <div className="flex-1 flex justify-center">
+      {/* Primary Control Hub — Center */}
+      <div className="flex-1 max-w-xl">
         <BrandSelector />
       </div>
 
-      {/* Right actions */}
-      <div className="flex items-center gap-4 relative shrink-0">
-        <span className="text-xs font-medium text-soft-black/60 flex items-center gap-2 uppercase tracking-wide">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+      {/* Action Layer */}
+      <div className="flex items-center gap-6 shrink-0">
+        <div className="hidden lg:flex items-center gap-2.5 px-3 py-1.5 rounded-full border border-border/50 bg-white shadow-soft">
+          <div className="relative flex h-1.5 w-1.5">
+            <div className="animate-ping absolute inset-0 rounded-full bg-emerald-400 opacity-60" />
+            <div className="relative rounded-full h-1.5 w-1.5 bg-emerald-500" />
+          </div>
+          <span className="text-[9px] font-black uppercase tracking-widest text-soft-black/60">
+            Realtime Synthesis
           </span>
-          Live Sync
-        </span>
-        <Button
-          variant="outline"
-          className="h-8 text-xs font-semibold tracking-wide border-border hover:bg-beige hover:text-maroon transition-all text-soft-black bg-card shadow-sm"
+        </div>
+        
+        <button
+          className="h-9 px-5 text-[10px] font-black uppercase tracking-[0.2em] bg-maroon text-white rounded-full shadow-lg shadow-maroon/20 hover:shadow-maroon/30 transition-all active:scale-95 btn-press"
         >
-          Export Report
-        </Button>
+          Export Intel
+        </button>
       </div>
     </header>
   );

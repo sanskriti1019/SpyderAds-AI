@@ -4,6 +4,7 @@ import { useActiveBrand } from "@/lib/brand-context";
 import { useWeeklyBrief, useInsights } from "@/lib/hooks";
 import { getMockBrief } from "@/lib/mock-data";
 import { Card } from "@/components/ui/card";
+import { SimpleMarkdown } from "@/components/ui/simple-markdown";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BriefPage() {
@@ -58,17 +59,29 @@ export default function BriefPage() {
       ) : (
         <>
           {/* Executive Summary */}
-          <Card className="p-8 border-border bg-card">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="h-8 w-8 bg-maroon rounded-lg flex items-center justify-center text-white text-sm">✦</div>
+          <Card className="p-10 border-border bg-card designer-shadow-deep relative overflow-hidden group">
+            {/* Ambient accent */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-maroon/[0.02] rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
+            
+            <div className="flex items-center gap-4 mb-8 relative z-10">
+              <div className="h-12 w-12 bg-maroon rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-maroon/20 animate-glow">✦</div>
               <div>
-                <h3 className="text-xl font-serif font-bold text-soft-black">Executive Summary</h3>
-                <p className="text-[10px] uppercase tracking-widest font-bold text-maroon/70 mt-0.5">
-                  AI-Generated · {weekRange}
-                </p>
+                <h3 className="text-2xl font-serif font-black text-soft-black tracking-tight">Executive Summary</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-black text-maroon/70">
+                    AI-Generated Intelligence Room • {weekRange}
+                  </p>
+                </div>
               </div>
             </div>
-            <p className="text-sm text-soft-black/80 font-medium leading-7">{summary}</p>
+            
+            <div className="relative z-10 max-w-4xl">
+              <SimpleMarkdown content={summary} />
+            </div>
+
+            {/* Inset Border */}
+            <div className="absolute inset-[2px] rounded-[1.9rem] border border-white/40 pointer-events-none z-0" />
           </Card>
 
           {/* Key Intelligence Bullets */}

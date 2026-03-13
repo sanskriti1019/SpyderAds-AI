@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
+import { SimpleMarkdown } from "@/components/ui/simple-markdown";
 
 interface StrategyInsightsProps {
   brandName: string;
@@ -111,16 +112,16 @@ export function CompetitorStrategyInsights({ brandName, competitors }: StrategyI
                 {item.strength}
               </span>
             </div>
-            <p className="text-sm text-soft-black/80 font-medium leading-relaxed">
-              {item.insight}
-            </p>
-            <div className="flex items-start gap-2 pt-1">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-maroon/70 mt-0.5 shrink-0">
+            <div className="text-sm text-soft-black/80 font-medium leading-relaxed">
+              <SimpleMarkdown content={item.insight} />
+            </div>
+            <div className="flex items-start gap-2 pt-1 border-t border-soft-black/5 mt-3">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-maroon/70 mt-1 shrink-0">
                 Action →
               </span>
-              <p className="text-xs text-soft-black/70 leading-relaxed">
-                {item.action}
-              </p>
+              <div className="text-xs text-soft-black/70 leading-relaxed font-medium">
+                <SimpleMarkdown content={item.action} />
+              </div>
             </div>
           </div>
         ))}

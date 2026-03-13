@@ -21,11 +21,21 @@ export async function GET(request: NextRequest) {
       const { createServerSupabase } = await import("@/lib/supabase/server");
       const supabase = createServerSupabase();
 
+      // First, resolve the brand name to an ID to ensure accurate filtering
+      const { data: bData } = await supabase
+        .from("brands")
+        .select("id")
+        .eq("name", brand)
+        .single();
+
+      if (!bData) throw new Error("Brand not found");
+
       const { data } = await supabase
         .from("weekly_briefs")
         .select("*, brands!primary_brand_id(name)")
+        .eq("primary_brand_id", bData.id)
         .order("week_start", { ascending: false })
-        .limit(5);
+        .limit(1);
 
       if (data && data.length > 0) {
         const briefs = data.map((b) => ({
@@ -35,7 +45,8 @@ export async function GET(request: NextRequest) {
         setCache(cacheKey, briefs, CACHE_TTL);
         return NextResponse.json(briefs);
       }
-    } catch {
+    } catch (err) {
+      console.error("Supabase Weekly Brief Fetch Error:", err);
       // Fall through to mock data
     }
 

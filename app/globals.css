@@ -4,43 +4,65 @@
 
 @layer base {
   :root {
-    --background: #F7F3EC;
-    --foreground: #1A1A1A;
-    --card: #ffffff;
-    --card-foreground: #1A1A1A;
-    --muted: #EDE3D5;
-    --muted-foreground: #6b7280;
-    --border: #D8D2C6;
-    --primary: #6E2C2C;
-    --primary-foreground: #F7F3EC;
-    --accent: #EDE3D5;
-    --glass: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(216, 210, 198, 0.4);
+    --background: #F8F8F7; /* Airy Off-white */
+    --foreground: #090908; /* Deep Charcoal */
+    --card: #FFFFFF;
+    --card-foreground: #090908;
+    --muted: #F1F1F0;
+    --muted-foreground: #63635E;
+    --border: #E2E2DF;
+    --primary: #6E2C2C; /* Core Maroon */
+    --primary-foreground: #F8F8F7;
+    --accent: #F1F1F0;
+    --glass: rgba(255, 255, 255, 0.65);
+    --glass-border: rgba(226, 226, 223, 0.4);
+    
+    /* Tiered Designer Shadows */
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+    --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.02);
+    --shadow-medium: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
+    --shadow-deep: 0 20px 50px -12px rgba(110, 44, 44, 0.12);
+    --shadow-float: 0 30px 60px -12px rgba(0, 0, 0, 0.15);
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-family: var(--font-inter), sans-serif;
+    @apply bg-background text-foreground antialiased selection:bg-maroon/10 selection:text-maroon;
+    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: -0.011em;
   }
 }
 
-/* ── Subtle dot-grid background ─────────────────────────────────────────── */
+/* ── Designer Atmosphere Layers ─────────────────────────────────────────── */
 body::before {
   content: "";
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+  opacity: 0.8;
+  mix-blend-mode: overlay;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
   z-index: -1;
   background-image: radial-gradient(var(--border) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-  opacity: 0.5;
+  background-size: 48px 48px;
+  mask-image: radial-gradient(circle at center, black 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 100%);
+  opacity: 0.35;
 }
 
 @layer utilities {
   .glass-panel {
-    @apply bg-[var(--glass)] backdrop-blur-xl border border-[color:var(--glass-border)] shadow-sm;
+    @apply bg-white/60 backdrop-blur-2xl border border-white/20 shadow-soft;
   }
+  .designer-shadow { box-shadow: var(--shadow-medium); }
+  .designer-shadow-deep { box-shadow: var(--shadow-deep); }
+  .designer-inner-shadow { box-shadow: var(--shadow-inner); }
 }
 
 @layer base {

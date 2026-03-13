@@ -13,50 +13,18 @@ import { InsightPanel } from "@/components/insights/insight-panel";
 import { WeeklyBrief } from "@/components/insights/weekly-brief";
 import { CompetitorStrategyInsights } from "@/components/insights/competitor-strategy-insights";
 import { AnimatedStat } from "@/components/ui/animated-stat";
+import { MagneticCard } from "@/components/ui/magnetic-card";
 
-// Static format/theme per brand (used when Supabase has no data)
-const BRAND_FORMAT_DATA: Record<string, { format: string; value: number }[]> = {
-  "BeBodywise": [
-    { format: "Video", value: 45 },
-    { format: "Carousel", value: 30 },
-    { format: "Image", value: 25 },
-  ],
-  "Man Matters": [
-    { format: "Video", value: 55 },
-    { format: "Carousel", value: 28 },
-    { format: "Image", value: 17 },
-  ],
-  "Little Joys": [
-    { format: "Video", value: 50 },
-    { format: "Image", value: 35 },
-    { format: "Carousel", value: 15 },
-  ],
-};
-const BRAND_THEME_DATA: Record<string, { theme: string; value: number }[]> = {
-  "BeBodywise": [
-    { theme: "Educational", value: 38 },
-    { theme: "Testimonial", value: 32 },
-    { theme: "Before/After", value: 30 },
-  ],
-  "Man Matters": [
-    { theme: "Clinical Authority", value: 42 },
-    { theme: "Testimonial", value: 35 },
-    { theme: "Offer-driven", value: 23 },
-  ],
-  "Little Joys": [
-    { theme: "Emotional/Safety", value: 48 },
-    { theme: "Natural Ingredients", value: 30 },
-    { theme: "Social Proof", value: 22 },
-  ],
-};
-
-// Section label component
+// Section label component — Upgraded style
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/50 mb-4 flex items-center gap-2">
-      <span className="w-4 h-[1px] bg-maroon/40 inline-block" />
-      {children}
-    </h3>
+    <div className="flex items-center justify-between mb-5 px-1">
+      <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/40 flex items-center gap-2">
+        <span className="w-5 h-[1.5px] bg-maroon/50 inline-block" />
+        {children}
+      </h3>
+      <div className="h-[1px] flex-1 bg-border/40 ml-6" />
+    </div>
   );
 }
 
@@ -64,201 +32,162 @@ export default function DashboardPage() {
   const { activeBrand } = useActiveBrand();
   const config = BRAND_CONFIG[activeBrand];
 
-  // All hooks now receive activeBrand so they refetch on brand switch
+  // Data fetching
   const { data: apiStats, isLoading: statsLoading } = useDashboardStats({ brand: activeBrand });
   const { data: apiInsights = [] } = useInsights({ brand: activeBrand });
   const { data: briefs = [] } = useWeeklyBrief({ brand: activeBrand });
-  const { data: ads = [] } = useAds({ brand: undefined });
+  const { data: ads = [] } = useAds();
 
-  // Resolve stats — prefer API, fall back to mock
-  const mockStats = getMockStats(activeBrand);
-  const stats = (apiStats && !("error" in apiStats)) ? apiStats : mockStats;
-
-  // Resolve insights — prefer API when non-empty, fall back to mock
-  const mockInsights = getMockInsights(activeBrand);
-  const insights = (apiInsights.length > 0) ? apiInsights : mockInsights;
-  const gapInsights = getMockGaps(activeBrand);
-
-  // Resolve brief
-  const apiFirstBrief = briefs[0] as {
-    week_start?: string; week_end?: string;
-    summary_md?: string; insights_json?: { trend?: string }[];
-    primary_brand_name?: string;
-  } | undefined;
+  // Resolution logic
+  const stats = (apiStats && !("error" in apiStats)) ? apiStats : getMockStats(activeBrand);
+  const insights = (apiInsights.length > 0) ? apiInsights : getMockInsights(activeBrand);
   const mockBrief = getMockBrief(activeBrand);
-  const brief = apiFirstBrief?.summary_md ? apiFirstBrief : mockBrief;
-
-  // Trend data — from mock (rich 10-week data)
+  const brief = (briefs[0]?.summary_md) ? briefs[0] : mockBrief;
   const trendData = getMockTrends(activeBrand);
 
-  // Format/theme — from ads if available, else static
-  const adsForBrand = (ads as { format?: string; theme?: string }[]);
-  const formatData: { format: string; value: number }[] = (() => {
-    if (adsForBrand.length > 0) {
-      const acc: Record<string, number> = {};
-      adsForBrand.forEach((a) => { if (a.format) acc[a.format] = (acc[a.format] ?? 0) + 1; });
-      return Object.entries(acc).map(([format, value]) => ({ format, value }));
-    }
-    return BRAND_FORMAT_DATA[activeBrand] ?? BRAND_FORMAT_DATA["BeBodywise"];
-  })();
-  const themeData: { theme: string; value: number }[] = (() => {
-    if (adsForBrand.length > 0) {
-      const acc: Record<string, number> = {};
-      adsForBrand.forEach((a) => { if (a.theme) acc[a.theme] = (acc[a.theme] ?? 0) + 1; });
-      return Object.entries(acc).map(([theme, value]) => ({ theme, value }));
-    }
-    return BRAND_THEME_DATA[activeBrand] ?? BRAND_THEME_DATA["BeBodywise"];
-  })();
-
-  const weekRange = (brief as { week_start?: string; week_end?: string }).week_start && (brief as { week_start?: string; week_end?: string }).week_end
-    ? `${(brief as { week_start?: string }).week_start} – ${(brief as { week_end?: string }).week_end}`
+  const weekRange = (brief as any).week_start 
+    ? `${(brief as any).week_start} – ${(brief as any).week_end}` 
     : mockBrief.week_start + " – " + mockBrief.week_end;
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12 animate-fade-in-up">
 
-      {/* ── Brand Hero Banner ── */}
-      <div className="relative flex items-end justify-between rounded-2xl border border-border bg-card p-8 overflow-hidden animate-fade-in-up">
-        {/* Decorative maroon gradient blob */}
-        <div className="absolute right-0 top-0 w-72 h-full bg-gradient-to-l from-maroon/5 to-transparent pointer-events-none rounded-r-2xl" />
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-maroon/5 blur-3xl pointer-events-none" />
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-maroon/70 mb-2">Active Intelligence</p>
-          <h2 className="text-3xl font-serif font-bold text-soft-black tracking-tight leading-tight">
-            {activeBrand}
-            <span className="text-maroon"> Intelligence</span>
-          </h2>
-          <p className="text-sm text-soft-black/60 font-medium mt-1.5 tracking-wide">
-            {config.tagline} · {config.industry}
-          </p>
-        </div>
-        <div className="text-right shrink-0 hidden sm:block">
-          <p className="text-[10px] text-soft-black/40 uppercase tracking-widest font-semibold mb-1">Tracking</p>
-          <p className="text-sm font-bold text-maroon">{config.competitors.join(" · ")}</p>
-        </div>
-      </div>
+      {/* ── 1. ADVEANCED HERO ── */}
+      <section className="relative group">
+        <MagneticCard className="p-0 border-none overflow-hidden bg-transparent">
+          <div className="relative rounded-3xl border border-border shadow-2xl bg-card p-10 overflow-hidden">
+             {/* Dynamic background accents */}
+             <div 
+               className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none transition-transform duration-700 group-hover:scale-105"
+               style={{ background: `radial-gradient(circle at top right, ${config.accentColor || '#6E2C2C'} 0%, transparent 70%)` }}
+             />
+             <div className="absolute top-8 left-8 w-24 h-24 bg-maroon/5 rounded-full blur-3xl" />
 
-      {/* ── 1. KPI Stats ── */}
-      <section>
+             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+               <div className="space-y-4">
+                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-maroon/5 border border-maroon/20">
+                   <span className="relative flex h-2 w-2">
+                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-maroon opacity-75"></span>
+                     <span className="relative inline-flex rounded-full h-2 w-2 bg-maroon"></span>
+                   </span>
+                   <span className="text-[10px] font-bold uppercase tracking-widest text-maroon">Analysis Active</span>
+                 </div>
+                 
+                 <h2 className="text-4xl md:text-5xl font-serif font-bold text-soft-black tracking-tight leading-[1.1]">
+                   {activeBrand} <br />
+                   <span className="text-maroon italic">Intelligence Room</span>
+                 </h2>
+                 
+                 <div className="flex items-center gap-4 text-sm text-soft-black/60 font-medium">
+                   <p className="border-r border-border/60 pr-4">{config.tagline}</p>
+                   <p className="uppercase tracking-widest text-[10px] font-black text-soft-black/40">{config.industry}</p>
+                 </div>
+               </div>
+
+               <div className="flex flex-col items-end gap-3 shrink-0">
+                 <p className="text-[10px] text-soft-black/40 uppercase tracking-widest font-black">Competitor Perimeter</p>
+                 <div className="flex flex-wrap gap-2 justify-end max-w-sm">
+                   {config.competitors.map(c => (
+                     <span key={c} className="px-3 py-1.5 rounded-lg bg-card border border-border/80 shadow-sm text-xs font-bold text-soft-black transition-all hover:border-maroon/30 hover:-translate-y-0.5">
+                       {c}
+                     </span>
+                   ))}
+                 </div>
+               </div>
+             </div>
+          </div>
+        </MagneticCard>
+      </section>
+
+      {/* ── 2. KPI STATS with Magnetic Cards ── */}
+      <section className="reveal">
         <SectionLabel>Competitor Overview</SectionLabel>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 stagger-children">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 stagger-children">
           {statsLoading ? (
-            <>
-              <Skeleton className="h-28" />
-              <Skeleton className="h-28" />
-              <Skeleton className="h-28" />
-              <Skeleton className="h-28" />
-            </>
+            [1,2,3,4].map(i => <Skeleton key={i} className="h-28 rounded-2xl" />)
           ) : (
             <>
               {[
-                { label: "Tracked Competitors", value: config.competitors.length, suffix: "" },
-                { label: "Active Ads Tracked", value: stats?.activeAds ?? 0, suffix: "" },
-                { label: "New Creatives (30d)", value: stats?.newCreatives30d ?? 0, suffix: "" },
-                { label: "Category", isText: true, text: config.industry },
+                { label: "Direct Competitors", value: config.competitors.length },
+                { label: "Active Ad Stream", value: stats?.activeAds ?? 0 },
+                { label: "New Creative Volume", value: stats?.newCreatives30d ?? 0 },
+                { label: "Market Volatility", value: 12, suffix: "%" },
               ].map((item, i) => (
-                <Card key={i} className="flex flex-col justify-between p-6">
-                  <span className="text-[10px] font-bold text-soft-black/50 tracking-widest uppercase">{item.label}</span>
-                  {item.isText ? (
-                    <span className="mt-3 text-lg font-bold font-serif text-maroon leading-snug">{item.text}</span>
-                  ) : (
-                    <AnimatedStat
-                      value={item.value as number}
-                      className="mt-3 text-4xl font-bold font-serif text-soft-black"
-                    />
-                  )}
-                </Card>
+                <MagneticCard key={i} className="group">
+                  <div className="p-6 h-full flex flex-col justify-between">
+                    <span className="text-[10px] font-bold text-soft-black/40 tracking-widest uppercase transition-colors group-hover:text-maroon/60">{item.label}</span>
+                    <div className="flex items-baseline gap-1 mt-4">
+                      <AnimatedStat
+                        value={item.value as number}
+                        className="text-4xl font-bold font-serif text-soft-black tracking-tight"
+                      />
+                      {item.suffix && <span className="text-lg font-bold text-soft-black/40">{item.suffix}</span>}
+                    </div>
+                  </div>
+                </MagneticCard>
               ))}
             </>
           )}
         </div>
       </section>
 
-      {/* ── 2. Market Share Radar ── */}
-      <section>
-        <SectionLabel>Market Share Comparison</SectionLabel>
-        <MarketShareChart brandName={activeBrand} competitors={config.competitors} />
-      </section>
-
-      {/* ── 3. Ad Intelligence Charts ── */}
-      <section>
-        <SectionLabel>Ad Intelligence</SectionLabel>
-        <div className="grid gap-4 md:grid-cols-2">
-          <FormatDistributionChart data={formatData} />
-          <ThemeDistributionChart data={themeData} />
+      {/* ── 3. RADAR & TRENDS ── */}
+      <div className="grid gap-6 lg:grid-cols-3 reveal">
+        <div className="lg:col-span-2 space-y-6">
+          <SectionLabel>Market Positioning Radar</SectionLabel>
+          <Card className="p-1 border-border shadow-xl">
+             <MarketShareChart brandName={activeBrand} competitors={config.competitors} />
+          </Card>
         </div>
-      </section>
+        <div className="space-y-6">
+          <SectionLabel>Weekly AI Brief</SectionLabel>
+          <WeeklyBrief
+            brand={activeBrand}
+            weekRange={weekRange}
+            summary={(brief as any).summary_md ?? mockBrief.summary_md}
+            bullets={(brief as any).insights_json?.map((i: any) => i.trend) ?? mockBrief.insights_json.map(i => i.trend)}
+          />
+        </div>
+      </div>
 
-      {/* ── 4. Creative Trend Insights ── */}
-      <section>
-        <SectionLabel>Creative Trend Insights</SectionLabel>
-        <div className="grid gap-4 lg:grid-cols-3">
-          <div className="lg:col-span-2">
+      {/* ── 4. AD INTELLIGENCE ── */}
+      <section className="reveal">
+        <SectionLabel>Ad & Creative Intelligence</SectionLabel>
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card className="p-1 border-border shadow-xl overflow-hidden">
+             <FormatDistributionChart data={getMockTrends(activeBrand).slice(-1).map(p => ([
+               { format: "Video", value: p.video },
+               { format: "Carousel", value: p.carousel },
+               { format: "Image", value: p.image },
+               { format: "Testimonial", value: p.testimonial },
+             ])).flat()} />
+          </Card>
+          <Card className="shadow-xl">
             <TrendChart
-              title={`${activeBrand} — Creative Trends`}
-              subtitle="Format volume across tracked competitor ads (10-week)"
+              title={`Content Evolution — ${activeBrand}`}
+              subtitle="Volume shifts across core ad formats"
               data={trendData}
-              keys={["testimonial", "video", "carousel", "image"]}
+              keys={["video", "carousel", "image"]}
             />
-          </div>
-          {/* Gap opportunities from mock */}
-          <div className="flex flex-col gap-3">
-            <Card className="p-5 h-full">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-soft-black/50 mb-3">
-                Market Gaps
-              </p>
-              <div className="space-y-3">
-                {gapInsights.slice(0, 3).map((g, i) => (
-                  <div key={i} className="rounded-xl border border-border bg-beige/30 px-4 py-3 space-y-1.5 hover:-translate-y-0.5 transition-all">
-                    <p className="text-[10px] font-bold text-maroon tracking-wider">{g.competitor}</p>
-                    <p className="text-xs font-semibold text-soft-black leading-snug">{g.trend.replace("Gap: ", "").replace("Investment signal: ", "")}</p>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
+          </Card>
         </div>
       </section>
 
-      {/* ── 5. Strategy + Brief ── */}
-      <section>
-        <SectionLabel>Competitor Strategy Insights</SectionLabel>
-        <div className="grid gap-4 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <CompetitorStrategyInsights brandName={activeBrand} competitors={config.competitors} />
-          </div>
-          <div className="flex flex-col gap-4">
-            <InsightPanel
-              title="Key Intelligence Signals"
-              insights={(insights as { competitor: string; trend: string; strategic_implication: string }[]).slice(0, 3)}
-            />
-            <WeeklyBrief
-              brand={activeBrand}
-              weekRange={weekRange}
-              summary={(brief as { summary_md?: string }).summary_md ?? mockBrief.summary_md}
-              bullets={
-                ((brief as { insights_json?: { trend?: string }[] }).insights_json?.map((i) => i.trend).filter(Boolean) as string[]) ??
-                mockBrief.insights_json.map((i) => i.trend)
-              }
-            />
-          </div>
+      {/* ── 5. STRATEGY MATRIX ── */}
+      <div className="grid gap-6 lg:grid-cols-3 reveal">
+        <div className="lg:col-span-2 space-y-6">
+          <SectionLabel>Competitive Strategy Matrix</SectionLabel>
+          <CompetitorStrategyInsights brandName={activeBrand} competitors={config.competitors} />
         </div>
-      </section>
+        <div className="space-y-6">
+          <SectionLabel>Key Intelligence Signals</SectionLabel>
+          <InsightPanel
+            title="Active Intelligence"
+            insights={insights.slice(0, 4)}
+          />
+        </div>
+      </div>
 
-      {/* ── 6. Ad Creative Gallery placeholder ── */}
-      <section>
-        <SectionLabel>Creative Intelligence Gallery</SectionLabel>
-        <Card className="p-10 border-border bg-card text-center">
-          <p className="text-4xl mb-3">🕸️</p>
-          <p className="text-soft-black font-serif font-bold text-lg">Scraper running in background</p>
-          <p className="text-soft-black/50 text-sm font-medium mt-2">
-            Live creatives will appear here once the Meta Ad Library scraper populates the database.
-          </p>
-          <p className="text-soft-black/30 text-xs font-medium mt-1">
-            Visit <span className="text-maroon font-semibold">/competitors/[brand]</span> to see ad examples per competitor.
-          </p>
-        </Card>
-      </section>
     </div>
   );
 }
