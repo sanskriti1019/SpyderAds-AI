@@ -180,7 +180,7 @@ export default function LongevityPage() {
            Strategic Intelligence Output
         </h3>
         <p className="text-[15px] text-soft-black/90 font-medium leading-relaxed italic font-serif">
-           The longest-running creatives in the <span className="font-bold">{config.industry}</span> space prioritize <span className="text-maroon font-bold underline decoration-maroon/30 underline-offset-4">clinical authority</span> and <span className="text-maroon font-bold underline decoration-maroon/30 underline-offset-4">educational formats</span>. This data suggests that {activeBrand}'s customer segment is heavily influenced by trust-based, deep-copy creatives rather than flash-offers. Scaling high-production video benchmarks from {longestAd?.brand} is the recommended activation path.
+           The longest-running creatives in the <span className="font-bold">{activeBrand}</span> space prioritize <span className="text-maroon font-bold underline decoration-maroon/30 underline-offset-4">clinical authority</span> and <span className="text-maroon font-bold underline decoration-maroon/30 underline-offset-4">educational formats</span>. This data suggests that {activeBrand}'s customer segment is heavily influenced by trust-based, deep-copy creatives rather than flash-offers. Scaling high-production video benchmarks from {longestAd?.brand || "competitors"} is the recommended activation path.
         </p>
       </Card>
     </div>
