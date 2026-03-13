@@ -20,13 +20,13 @@ interface TrendChartProps {
 }
 
 export function TrendChart({ title, subtitle, data, keys }: TrendChartProps) {
-  const colors = ["#2563eb", "#8b5cf6", "#0ea5e9"];
+  const colors = ["#6E2C2C", "#1A1A1A", "#D8D2C6"];
   return (
-    <Card className="flex flex-col p-6">
+    <Card className="flex flex-col p-6 border-border bg-card">
       <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-bold text-gray-900 tracking-tight">{title}</h2>
+        <h2 className="text-xl font-bold font-serif text-soft-black tracking-tight">{title}</h2>
         {subtitle && (
-          <p className="text-sm text-gray-500">{subtitle}</p>
+          <p className="text-sm text-soft-black/60 font-medium">{subtitle}</p>
         )}
       </div>
       <div className="mt-6 h-72 w-full">
@@ -40,16 +40,16 @@ export function TrendChart({ title, subtitle, data, keys }: TrendChartProps) {
                 </linearGradient>
               ))}
             </defs>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" vertical={false} />
-            <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fill: "#6b7280", fontSize: 12 }} dy={10} />
-            <YAxis tickLine={false} axisLine={false} tick={{ fill: "#6b7280", fontSize: 12 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#D8D2C6" vertical={false} />
+            <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fill: "#1A1A1A80", fontSize: 12, fontWeight: 500 }} dy={10} />
+            <YAxis tickLine={false} axisLine={false} tick={{ fill: "#1A1A1A80", fontSize: 12, fontWeight: 500 }} />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                backgroundColor: 'rgba(247, 243, 236, 0.95)',
                 backdropFilter: 'blur(12px)',
-                border: '1px solid #e5e7eb',
+                border: '1px solid #D8D2C6',
                 borderRadius: '12px',
-                color: '#111827',
+                color: '#1A1A1A',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
               }}
             />

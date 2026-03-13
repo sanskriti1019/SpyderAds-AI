@@ -19,8 +19,8 @@ export function CreativeGallery({ creatives }: CreativeGalleryProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold tracking-tight text-gray-900">Creative Gallery</h2>
-        <span className="text-sm font-medium text-gray-400 bg-white px-3 py-1 rounded-full shadow-sm border border-gray-100">
+        <h2 className="text-2xl font-bold tracking-tight text-soft-black font-serif">Creative Gallery</h2>
+        <span className="text-sm font-medium text-soft-black/60 bg-card px-3 py-1 rounded-full shadow-sm border border-border">
           {creatives.length} creatives tracked
         </span>
       </div>

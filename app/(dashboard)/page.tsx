@@ -105,27 +105,27 @@ export default function DashboardPage() {
           </>
         ) : (
           <>
-            <Card className="flex flex-col justify-between p-6">
-              <span className="text-sm font-medium text-gray-500">
+            <Card className="flex flex-col justify-between p-6 bg-card border-border">
+              <span className="text-sm font-medium text-soft-black/60 tracking-wider uppercase">
                 Active competitors
               </span>
-              <span className="mt-3 text-3xl font-bold tracking-tight text-gray-900 drop-shadow-sm">
+              <span className="mt-3 text-3xl font-bold font-serif text-soft-black drop-shadow-sm">
                 {stats?.activeCompetitors ?? 0}
               </span>
             </Card>
-            <Card className="flex flex-col justify-between p-6">
-              <span className="text-sm font-medium text-gray-500">
+            <Card className="flex flex-col justify-between p-6 bg-card border-border">
+              <span className="text-sm font-medium text-soft-black/60 tracking-wider uppercase">
                 Active ads tracked
               </span>
-              <span className="mt-3 text-3xl font-bold tracking-tight text-gray-900 drop-shadow-sm">
+              <span className="mt-3 text-3xl font-bold font-serif text-soft-black drop-shadow-sm">
                 {stats?.activeAds ?? 0}
               </span>
             </Card>
-            <Card className="flex flex-col justify-between p-6">
-              <span className="text-sm font-medium text-gray-500">
+            <Card className="flex flex-col justify-between p-6 bg-card border-border">
+              <span className="text-sm font-medium text-soft-black/60 tracking-wider uppercase">
                 New creatives (30d)
               </span>
-              <span className="mt-3 text-3xl font-bold tracking-tight text-gray-900 drop-shadow-sm">
+              <span className="mt-3 text-3xl font-bold font-serif text-soft-black drop-shadow-sm">
                 {stats?.newCreatives30d ?? 0}
               </span>
             </Card>
