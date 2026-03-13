@@ -1,5 +1,6 @@
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { IntroAnimation } from "@/components/ui/intro-animation";
 
 export default function DashboardLayout({
   children,
@@ -8,6 +9,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="flex h-screen flex-col bg-transparent">
+      <IntroAnimation />
       <Header />
       <div className="flex flex-1 overflow-hidden relative">
         <Sidebar className="z-10 bg-background/50 backdrop-blur-xl border-r border-white/5" />
