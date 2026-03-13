@@ -1,31 +1,25 @@
 "use client";
 
-import { use } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCompetitorBySlug } from "@/lib/competitors-data";
-import { useAds } from "@/lib/hooks";
 import { Card } from "@/components/ui/card";
 import { TrendChart } from "@/components/charts/trend-chart";
 import { FormatDistributionChart } from "@/components/charts/format-distribution-chart";
 import { ThemeDistributionChart } from "@/components/charts/theme-distribution-chart";
-import { CreativeGallery } from "@/components/creatives/creative-gallery";
-import { Skeleton } from "@/components/ui/skeleton";
 
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
+// ── Tiny sub-components ──────────────────────────────────────────────────────
 
 const SPEND_COLORS: Record<string, string> = {
-  "Low": "text-soft-black/60 bg-warm-grey/40 border-warm-grey",
-  "Medium": "text-soft-black bg-beige border-border",
-  "High": "text-maroon bg-maroon/10 border-maroon/20",
+  "Low":       "text-soft-black/60 bg-warm-grey/40 border-warm-grey",
+  "Medium":    "text-soft-black bg-beige border-border",
+  "High":      "text-maroon bg-maroon/10 border-maroon/20",
   "Very High": "text-white bg-maroon border-maroon",
 };
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/50 mb-4 px-1 flex items-center gap-2">
+    <h3 className="text-[11px] font-bold uppercase tracking-widest text-soft-black/50 mb-4 flex items-center gap-2">
       <span className="w-4 h-[1px] bg-maroon/40 inline-block" />
       {children}
     </h3>
@@ -40,55 +34,70 @@ function InfoTag({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function CompetitorDetailPage({ params }: PageProps) {
-  const { slug } = use(params);
+// ── Page ─────────────────────────────────────────────────────────────────────
+// Next.js 13/14 pattern: params is a plain object in client components
+export default function CompetitorDetailPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const { slug } = params;
   const brand = getCompetitorBySlug(slug);
-  if (!brand) notFound();
+  if (!brand) return notFound();
 
-  const { data: ads = [], isLoading: adsLoading } = useAds({ brand: brand.name });
-
+  // Derived chart data — purely from static competitor data
   const formatChartData = brand.keyFormats.map((format, i) => ({
     format,
-    value: Math.max(1, brand.estimatedMonthlyAds - i * 15),
+    value: Math.max(5, brand.estimatedMonthlyAds - i * 18),
   }));
   const themeChartData = brand.keyThemes.map((theme, i) => ({
     theme: theme.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-    value: Math.max(1, brand.estimatedMonthlyAds - i * 10),
+    value: Math.max(5, brand.estimatedMonthlyAds - i * 12),
   }));
   const trendData = [
-    { date: "W1", ads: Math.floor(brand.estimatedMonthlyAds * 0.2) },
-    { date: "W2", ads: Math.floor(brand.estimatedMonthlyAds * 0.35) },
-    { date: "W3", ads: Math.floor(brand.estimatedMonthlyAds * 0.55) },
-    { date: "W4", ads: Math.floor(brand.estimatedMonthlyAds * 0.75) },
+    { date: "W1",  ads: Math.floor(brand.estimatedMonthlyAds * 0.18) },
+    { date: "W2",  ads: Math.floor(brand.estimatedMonthlyAds * 0.28) },
+    { date: "W3",  ads: Math.floor(brand.estimatedMonthlyAds * 0.42) },
+    { date: "W4",  ads: Math.floor(brand.estimatedMonthlyAds * 0.58) },
+    { date: "W5",  ads: Math.floor(brand.estimatedMonthlyAds * 0.72) },
+    { date: "W6",  ads: Math.floor(brand.estimatedMonthlyAds * 0.88) },
+    { date: "W7",  ads: Math.floor(brand.estimatedMonthlyAds * 1.00) },
+    { date: "W8",  ads: Math.floor(brand.estimatedMonthlyAds * 0.92) },
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 animate-fade-in-up">
 
       {/* Back CTA */}
       <Link
         href="/competitors"
-        className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-soft-black/50 hover:text-maroon transition-colors"
+        className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-soft-black/50 hover:text-maroon transition-colors group"
       >
-        ← All Competitors
+        <span className="group-hover:-translate-x-0.5 transition-transform">←</span> All Competitors
       </Link>
 
-      {/* ─── HERO SECTION ─── */}
-      <div className="rounded-2xl border border-border bg-card p-8 flex flex-col lg:flex-row items-start gap-8">
-        {/* Logo */}
+      {/* ─── HERO ─── */}
+      <div className="rounded-2xl border border-border bg-card p-8 flex flex-col lg:flex-row items-start gap-8 relative overflow-hidden">
+        {/* Background accent */}
         <div
-          className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl text-white text-3xl font-bold font-serif shadow-lg"
+          className="absolute right-0 top-0 w-80 h-full opacity-5 pointer-events-none"
+          style={{ background: `linear-gradient(135deg, ${brand.accentColor} 0%, transparent 60%)` }}
+        />
+
+        {/* Logo Avatar */}
+        <div
+          className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl text-white text-3xl font-bold font-serif shadow-lg animate-scale-in"
           style={{ backgroundColor: brand.accentColor }}
         >
           {brand.initials}
         </div>
 
-        {/* Name + Meta */}
+        {/* Name + meta */}
         <div className="flex-1 min-w-0 space-y-3">
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-3xl font-serif font-bold text-soft-black tracking-tight">{brand.name}</h2>
             <InfoTag>{brand.industry}</InfoTag>
-            <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${SPEND_COLORS[brand.adSpendLevel]}`}>
+            <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${SPEND_COLORS[brand.adSpendLevel] ?? ""}`}>
               {brand.adSpendLevel} Spend
             </span>
           </div>
@@ -99,7 +108,7 @@ export default function CompetitorDetailPage({ params }: PageProps) {
               href={brand.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-maroon hover:text-maroon/70 transition-colors border-b border-maroon/40 pb-0.5"
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-maroon hover:text-maroon/70 transition-colors border-b border-maroon/40 pb-0.5 link-underline"
             >
               ↗ Visit Website
             </a>
@@ -118,21 +127,19 @@ export default function CompetitorDetailPage({ params }: PageProps) {
         </div>
 
         {/* Right stats */}
-        <div className="flex flex-col gap-4 shrink-0 text-right lg:border-l lg:border-border lg:pl-8">
+        <div className="flex flex-col gap-5 shrink-0 text-right lg:border-l lg:border-border lg:pl-8 min-w-[160px]">
           <div>
             <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/40">Est. Monthly Ads</p>
             <p className="text-4xl font-serif font-bold text-soft-black mt-1">{brand.estimatedMonthlyAds}</p>
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/40">Competes With</p>
-            <p className="text-sm font-bold text-maroon mt-1">{brand.primaryBrands.join(", ")}</p>
+            <p className="text-sm font-bold text-maroon mt-1 leading-snug">{brand.primaryBrands.join(", ")}</p>
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/40">Top Channels</p>
             <div className="flex flex-wrap gap-1 mt-1 justify-end">
-              {brand.topChannels.map((ch) => (
-                <InfoTag key={ch}>{ch}</InfoTag>
-              ))}
+              {brand.topChannels.map((ch) => <InfoTag key={ch}>{ch}</InfoTag>)}
             </div>
           </div>
         </div>
@@ -141,24 +148,23 @@ export default function CompetitorDetailPage({ params }: PageProps) {
       {/* ─── BRAND OVERVIEW ─── */}
       <section>
         <SectionLabel>Brand Overview</SectionLabel>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="p-5 border-border bg-card space-y-1.5">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 stagger-children">
+          <Card className="p-5 space-y-1.5">
             <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50">Target Audience</p>
             <p className="text-sm font-semibold text-soft-black leading-snug">{brand.targetAudience}</p>
           </Card>
-          <Card className="p-5 border-border bg-card space-y-1.5">
+          <Card className="p-5 space-y-1.5">
             <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50">Market Position</p>
             <p className="text-sm font-semibold text-soft-black leading-snug">{brand.marketPosition}</p>
           </Card>
-          <Card className="p-5 border-border bg-card space-y-1.5">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50">Content Tone</p>
+          <Card className="p-5 space-y-1.5">
+            <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50">Brand Tone</p>
             <p className="text-sm font-semibold text-soft-black leading-snug">{brand.tonality}</p>
           </Card>
         </div>
 
-        {/* Strengths & Weaknesses */}
         <div className="grid gap-4 md:grid-cols-2 mt-4">
-          <Card className="p-6 border-border bg-card">
+          <Card className="p-6">
             <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50 mb-3">Strengths</p>
             <ul className="space-y-2">
               {brand.strengths.map((s, i) => (
@@ -168,7 +174,7 @@ export default function CompetitorDetailPage({ params }: PageProps) {
               ))}
             </ul>
           </Card>
-          <Card className="p-6 border-border bg-card">
+          <Card className="p-6">
             <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50 mb-3">Weaknesses</p>
             <ul className="space-y-2">
               {brand.weaknesses.map((w, i) => (
@@ -184,9 +190,9 @@ export default function CompetitorDetailPage({ params }: PageProps) {
       {/* ─── AD STRATEGY ─── */}
       <section>
         <SectionLabel>Ad Strategy</SectionLabel>
-        <Card className="p-6 border-border bg-card space-y-4">
+        <Card className="p-6 space-y-6">
           <p className="text-sm text-soft-black/80 font-medium leading-relaxed">{brand.adStrategyOverview}</p>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50 mb-2">Ad Formats Used</p>
               <div className="flex flex-wrap gap-1.5">
@@ -203,7 +209,7 @@ export default function CompetitorDetailPage({ params }: PageProps) {
             <ul className="space-y-2">
               {brand.adStrategyPoints.map((pt, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-soft-black/80 font-medium leading-relaxed">
-                  <span className="text-maroon font-bold shrink-0 mt-0.5">0{i + 1}</span> {pt}
+                  <span className="text-maroon font-bold shrink-0 mt-0.5 tabular-nums">0{i + 1}</span> {pt}
                 </li>
               ))}
             </ul>
@@ -216,7 +222,7 @@ export default function CompetitorDetailPage({ params }: PageProps) {
         <SectionLabel>Creative Strategy</SectionLabel>
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <Card className="p-6 border-border bg-card h-full space-y-4">
+            <Card className="p-6 h-full space-y-5">
               <p className="text-sm text-soft-black/80 font-medium leading-relaxed">{brand.creativeStrategyOverview}</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
@@ -240,17 +246,12 @@ export default function CompetitorDetailPage({ params }: PageProps) {
               </div>
             </Card>
           </div>
-
-          {/* Message Themes */}
           <div className="space-y-4">
-            <Card className="p-5 border-border bg-card space-y-3">
+            <Card className="p-5 space-y-3">
               <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50">Message Themes</p>
               <div className="flex flex-wrap gap-1.5">
                 {brand.keyThemes.map((t) => (
-                  <span
-                    key={t}
-                    className="text-[10px] font-bold uppercase tracking-wider bg-maroon/10 text-maroon px-2.5 py-1 rounded-full border border-maroon/20"
-                  >
+                  <span key={t} className="text-[10px] font-bold uppercase tracking-wider bg-maroon/10 text-maroon px-2.5 py-1 rounded-full border border-maroon/20">
                     {t.replace(/-/g, " ")}
                   </span>
                 ))}
@@ -265,7 +266,7 @@ export default function CompetitorDetailPage({ params }: PageProps) {
       <section>
         <SectionLabel>Product Focus</SectionLabel>
         <div className="grid gap-4 lg:grid-cols-2">
-          <Card className="p-6 border-border bg-card space-y-4">
+          <Card className="p-6 space-y-4">
             <p className="text-sm text-soft-black/80 font-medium leading-relaxed">{brand.productFocusOverview}</p>
             <div>
               <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50 mb-2">Hero Products</p>
@@ -274,7 +275,7 @@ export default function CompetitorDetailPage({ params }: PageProps) {
               </div>
             </div>
           </Card>
-          <Card className="p-6 border-border bg-card">
+          <Card className="p-6">
             <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50 mb-3">Product Intelligence Points</p>
             <ul className="space-y-2">
               {brand.productFocusPoints.map((pt, i) => (
@@ -292,14 +293,14 @@ export default function CompetitorDetailPage({ params }: PageProps) {
         <SectionLabel>Marketing Messaging</SectionLabel>
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <Card className="p-6 border-border bg-card space-y-5">
+            <Card className="p-6 space-y-5">
               <p className="text-sm text-soft-black/80 font-medium leading-relaxed">{brand.messagingOverview}</p>
               <div>
                 <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50 mb-3">Core Messages</p>
                 <div className="space-y-2">
                   {brand.coreMessages.map((m, i) => (
                     <div key={i} className="flex items-start gap-3 rounded-xl border border-border bg-beige/20 px-4 py-3">
-                      <span className="text-maroon font-bold text-xs shrink-0 mt-0.5">{`"`}</span>
+                      <span className="text-maroon font-bold text-xs shrink-0 mt-0.5">"</span>
                       <p className="text-sm font-semibold text-soft-black italic">{m}</p>
                     </div>
                   ))}
@@ -318,17 +319,17 @@ export default function CompetitorDetailPage({ params }: PageProps) {
             </Card>
           </div>
           <div className="space-y-4">
-            <Card className="p-5 border-border bg-card space-y-2">
+            <Card className="p-5 space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50">CTA Style</p>
               <p className="text-sm font-semibold text-soft-black leading-snug">{brand.ctaStyle}</p>
             </Card>
-            <Card className="p-5 border-border bg-card space-y-2">
+            <Card className="p-5 space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50">Brand Tone</p>
               <p className="text-sm font-semibold text-maroon leading-snug">{brand.tonality}</p>
             </Card>
-            <Card className="p-5 border-border bg-card space-y-2">
+            <Card className="p-5 space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50">Content Strategy</p>
-              <p className="text-sm font-semibold text-soft-black leading-snug">{brand.contentStrategyOverview.slice(0, 120)}…</p>
+              <p className="text-sm font-semibold text-soft-black leading-snug line-clamp-4">{brand.contentStrategyOverview}</p>
             </Card>
           </div>
         </div>
@@ -336,9 +337,9 @@ export default function CompetitorDetailPage({ params }: PageProps) {
 
       {/* ─── CONTENT STRATEGY ─── */}
       <section>
-        <SectionLabel>Content Strategy Insights</SectionLabel>
+        <SectionLabel>Content Strategy</SectionLabel>
         <div className="grid gap-4 md:grid-cols-2">
-          <Card className="p-6 border-border bg-card space-y-4">
+          <Card className="p-6 space-y-4">
             <p className="text-sm text-soft-black/80 font-medium leading-relaxed">{brand.contentStrategyOverview}</p>
             <div>
               <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50 mb-2">Content Pillars</p>
@@ -347,7 +348,7 @@ export default function CompetitorDetailPage({ params }: PageProps) {
               </div>
             </div>
           </Card>
-          <Card className="p-6 border-border bg-card">
+          <Card className="p-6">
             <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/50 mb-3">Key Insights</p>
             <ul className="space-y-2">
               {brand.contentStrategyPoints.map((pt, i) => (
@@ -363,9 +364,9 @@ export default function CompetitorDetailPage({ params }: PageProps) {
       {/* ─── TOP RUNNING ADS ─── */}
       <section>
         <SectionLabel>Top Running Ads</SectionLabel>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 stagger-children">
           {brand.topRunningAds.map((ad, i) => (
-            <Card key={i} className="p-5 border-border bg-card flex flex-col gap-3 transition-all hover:-translate-y-0.5 hover:shadow-md">
+            <Card key={i} className="p-5 flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <span className="text-[9px] font-bold uppercase tracking-widest text-soft-black/40">Ad #{i + 1}</span>
                 <div className="flex gap-1.5 flex-wrap justify-end">
@@ -377,8 +378,8 @@ export default function CompetitorDetailPage({ params }: PageProps) {
               </div>
               <p className="text-sm font-bold text-soft-black font-serif leading-snug">"{ad.headline}"</p>
               <p className="text-xs text-soft-black/70 font-medium leading-relaxed flex-1">{ad.body}</p>
-              <div className="pt-2 border-t border-border/50">
-                <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/40 mb-1">CTA</p>
+              <div className="pt-2 border-t border-border/50 flex items-center justify-between">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-soft-black/40">CTA</p>
                 <p className="text-xs font-bold text-maroon">{ad.cta}</p>
               </div>
             </Card>
@@ -386,14 +387,14 @@ export default function CompetitorDetailPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* ─── AD INTELLIGENCE CHARTS ─── */}
+      {/* ─── AD FORMAT & VOLUME CHARTS ─── */}
       <section>
         <SectionLabel>Ad Format & Volume Intelligence</SectionLabel>
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <TrendChart
               title={`${brand.name} — Creative Volume Trend`}
-              subtitle="Estimated weekly ad creative output"
+              subtitle="Estimated weekly ad creative output (8-week view)"
               data={trendData}
               keys={["ads"]}
             />
@@ -402,26 +403,19 @@ export default function CompetitorDetailPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* ─── LIVE CREATIVE GALLERY ─── */}
+      {/* ─── RECENT MOVES ─── */}
       <section>
-        <SectionLabel>Live Creative Gallery</SectionLabel>
-        {adsLoading ? (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((i) => <Skeleton key={i} className="h-40" />)}
-          </div>
-        ) : ads.length > 0 ? (
-          <CreativeGallery creatives={ads} />
-        ) : (
-          <Card className="p-10 border-border bg-card text-center">
-            <p className="text-4xl mb-3">🕸️</p>
-            <p className="text-soft-black/50 text-sm font-medium">
-              No live creatives scraped for {brand.name} yet.
-            </p>
-            <p className="text-soft-black/30 text-xs mt-1">
-              The scraper will populate this section once it runs against their Meta Ad Library.
-            </p>
-          </Card>
-        )}
+        <SectionLabel>Recent Strategic Moves</SectionLabel>
+        <div className="grid gap-3 md:grid-cols-3">
+          {brand.recentMoves.map((move, i) => (
+            <Card key={i} className="p-5 flex items-start gap-3">
+              <span className="text-maroon font-bold font-serif text-lg shrink-0 leading-none mt-0.5">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <p className="text-sm font-semibold text-soft-black leading-snug">{move}</p>
+            </Card>
+          ))}
+        </div>
       </section>
     </div>
   );
