@@ -11,27 +11,25 @@ export async function fetchAds(params?: { brand?: string; format?: string; theme
   return res.json();
 }
 
-export async function fetchTrends(params?: { brand_id?: string; period?: string }) {
+export async function fetchTrends(params?: { brand?: string; period?: string }) {
   const q = new URLSearchParams();
-  if (params?.brand_id) q.set("brand_id", params.brand_id);
+  if (params?.brand) q.set("brand", params.brand);
   if (params?.period) q.set("period", params.period);
   const res = await fetch(`${BASE}/api/trends?${q}`);
   if (!res.ok) throw new Error("Failed to fetch trends");
   return res.json();
 }
 
-export async function fetchInsights(params?: { brand_id?: string }) {
-  const q = params?.brand_id ? `?brand_id=${params.brand_id}` : "";
+export async function fetchInsights(params?: { brand?: string }) {
+  const q = params?.brand ? `?brand=${encodeURIComponent(params.brand)}` : "";
   const res = await fetch(`${BASE}/api/insights${q}`);
   if (!res.ok) throw new Error("Failed to fetch insights");
   return res.json();
 }
 
-export async function fetchWeeklyBrief(params?: { primary_brand_id?: string; competitor_brand_id?: string }) {
-  const q = new URLSearchParams();
-  if (params?.primary_brand_id) q.set("primary_brand_id", params.primary_brand_id);
-  if (params?.competitor_brand_id) q.set("competitor_brand_id", params.competitor_brand_id);
-  const res = await fetch(`${BASE}/api/weekly-brief?${q}`);
+export async function fetchWeeklyBrief(params?: { brand?: string }) {
+  const q = params?.brand ? `?brand=${encodeURIComponent(params.brand)}` : "";
+  const res = await fetch(`${BASE}/api/weekly-brief${q}`);
   if (!res.ok) throw new Error("Failed to fetch weekly brief");
   return res.json();
 }
@@ -42,8 +40,16 @@ export async function fetchBrands() {
   return res.json();
 }
 
-export async function fetchDashboardStats() {
-  const res = await fetch(`${BASE}/api/dashboard-stats`);
+export async function fetchDashboardStats(params?: { brand?: string }) {
+  const q = params?.brand ? `?brand=${encodeURIComponent(params.brand)}` : "";
+  const res = await fetch(`${BASE}/api/dashboard-stats${q}`);
   if (!res.ok) throw new Error("Failed to fetch stats");
+  return res.json();
+}
+
+export async function fetchLongevity(params?: { brand?: string }) {
+  const q = params?.brand ? `?brand=${encodeURIComponent(params.brand)}` : "";
+  const res = await fetch(`${BASE}/api/longevity${q}`);
+  if (!res.ok) throw new Error("Failed to fetch longevity data");
   return res.json();
 }
