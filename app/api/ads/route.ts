@@ -122,6 +122,7 @@ export async function GET(request: NextRequest) {
     setCache(cacheKey, result, CACHE_TTL);
     return NextResponse.json(result);
   } catch (e) {
+    console.error("API Error details:", e);
     const msg = e instanceof Error ? e.message : "Internal error";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
