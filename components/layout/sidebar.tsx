@@ -5,11 +5,12 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const nav = [
-  { href: "/", label: "Overview" },
-  { href: "/trends", label: "Trends" },
-  { href: "/longevity", label: "Longevity" },
-  { href: "/gaps", label: "Gaps" },
-  { href: "/brief", label: "Weekly Brief" },
+  { href: "/", label: "Overview", icon: "◈" },
+  { href: "/competitors", label: "Competitors", icon: "⊕" },
+  { href: "/trends", label: "Trends", icon: "↗" },
+  { href: "/longevity", label: "Longevity", icon: "◎" },
+  { href: "/gaps", label: "Gaps", icon: "△" },
+  { href: "/brief", label: "Weekly Brief", icon: "✦" },
 ];
 
 export function Sidebar({ className }: { className?: string }) {
@@ -33,7 +34,7 @@ export function Sidebar({ className }: { className?: string }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "block rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 relative overflow-hidden group",
+                "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 relative overflow-hidden group",
                 active
                   ? "bg-beige text-maroon shadow-sm border border-border"
                   : "text-soft-black/80 hover:bg-beige/50 hover:text-maroon border border-transparent"
@@ -42,6 +43,7 @@ export function Sidebar({ className }: { className?: string }) {
               {active && (
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-1/2 bg-maroon rounded-r-md shadow-sm" />
               )}
+              <span className="relative z-10 text-sm opacity-70">{item.icon}</span>
               <span className="relative z-10">{item.label}</span>
               <div className="absolute inset-0 bg-gradient-to-r from-maroon/0 to-maroon/5 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 pointer-events-none" />
             </Link>
