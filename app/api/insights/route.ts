@@ -38,8 +38,8 @@ export async function GET(request: NextRequest) {
           .limit(4);
 
         const insights: unknown[] = [];
-        for (const b of briefs ?? []) {
-          const arr = (b as { insights_json?: unknown[] }).insights_json;
+        for (const b of (briefs ?? []) as { insights_json?: unknown[] }[]) {
+          const arr = b.insights_json;
           if (Array.isArray(arr)) insights.push(...arr);
         }
 
