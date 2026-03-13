@@ -21,29 +21,31 @@ export async function GET(request: NextRequest) {
       const { createServerSupabase } = await import("@/lib/supabase/server");
       const supabase = createServerSupabase();
 
-      // First, resolve the brand name to an ID to ensure accurate filtering
-      const { data: bData } = await supabase
+      // Resolve the brand name to an ID using case-insensitive match (ilike)
+      const { data: bData, error: bError } = await supabase
         .from("brands")
         .select("id")
-        .eq("name", brand)
+        .ilike("name", brand)
         .single();
 
-      if (!bData) throw new Error("Brand not found");
+      if (bError || !bData) {
+        console.warn(`Brand look-up failed for "${brand}":`, bError);
+        throw new Error("Brand not found");
+      }
 
-      const { data } = await supabase
+      // Fetch the latest brief specifically for this brand
+      const { data, error } = await supabase
         .from("weekly_briefs")
         .select("*, brands!primary_brand_id(name)")
         .eq("primary_brand_id", bData.id)
         .order("week_start", { ascending: false })
         .limit(1);
 
+      if (error) throw error;
+
       if (data && data.length > 0) {
-        const briefs = data.map((b) => ({
-          ...b,
-          primary_brand_name: (b as { brands?: { name: string } })?.brands?.name,
-        }));
-        setCache(cacheKey, briefs, CACHE_TTL);
-        return NextResponse.json(briefs);
+        setCache(cacheKey, data, CACHE_TTL);
+        return NextResponse.json(data);
       }
     } catch (err) {
       console.error("Supabase Weekly Brief Fetch Error:", err);

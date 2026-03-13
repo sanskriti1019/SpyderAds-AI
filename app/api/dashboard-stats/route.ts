@@ -21,24 +21,37 @@ export async function GET(request: Request) {
       const { createServerSupabase } = await import("@/lib/supabase/server");
       const supabase = createServerSupabase();
 
-      const [brandsRes, adsRes, newRes] = await Promise.all([
-        supabase.from("brands").select("id", { count: "exact", head: true }),
-        supabase.from("ads").select("id", { count: "exact", head: true }).gte("last_seen_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
-        supabase.from("ads").select("id", { count: "exact", head: true }).gte("first_seen_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
-      ]);
+      // Resolve brand ID
+      const { data: bData } = await supabase
+        .from("brands")
+        .select("id")
+        .ilike("name", brand)
+        .single();
 
-      // If we have real data, return it
-      if ((brandsRes.count ?? 0) > 0 || (adsRes.count ?? 0) > 0) {
-        const stats = {
-          activeCompetitors: brandsRes.count ?? 0,
-          activeAds: adsRes.count ?? 0,
-          newCreatives30d: newRes.count ?? 0,
-        };
-        setCache(cacheKey, stats, CACHE_TTL);
-        return NextResponse.json(stats);
+      if (bData) {
+        // Query stats specific to this brand context if needed, 
+        // but typically dashboard stats are for the ecosystem.
+        // However, the user wants it 'according to the brand'.
+        // For a primary brand, we count its competitors.
+        
+        const [brandsRes, adsRes, newRes] = await Promise.all([
+          supabase.from("brands").select("id", { count: "exact", head: true }).neq("id", bData.id),
+          supabase.from("ads").select("id", { count: "exact", head: true }).gte("last_seen_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
+          supabase.from("ads").select("id", { count: "exact", head: true }).gte("first_seen_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
+        ]);
+
+        if ((brandsRes.count ?? 0) > 0) {
+          const stats = {
+            activeCompetitors: brandsRes.count ?? 0,
+            activeAds: adsRes.count ?? 0,
+            newCreatives30d: newRes.count ?? 0,
+          };
+          setCache(cacheKey, stats, CACHE_TTL);
+          return NextResponse.json(stats);
+        }
       }
-    } catch {
-      // Fall through to mock data
+    } catch (err) {
+      console.error("Supabase Stats Fetch Error:", err);
     }
 
     // Return brand-specific mock data
