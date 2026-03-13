@@ -24,7 +24,7 @@
   }
 }
 
-/* Subtle, elegant, minimal background texture */
+/* ── Subtle dot-grid background ─────────────────────────────────────────── */
 body::before {
   content: "";
   position: fixed;
@@ -44,38 +44,251 @@ body::before {
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-playfair), serif;
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   KEYFRAMES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Page / element entrance */
 @keyframes fade-in-up {
-  0% { opacity: 0; transform: translateY(10px); }
+  0%   { opacity: 0; transform: translateY(16px); }
   100% { opacity: 1; transform: translateY(0); }
 }
-.animate-fade-in-up {
-  animation: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@keyframes fade-in-down {
+  0%   { opacity: 0; transform: translateY(-12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes slide-in-left {
+  0%   { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-in-right {
+  0%   { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes scale-in {
+  0%   { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
+/* Intro animation */
 @keyframes web-form {
-  0% { stroke-dasharray: 0 1000; opacity: 0; }
-  20% { opacity: 1; }
+  0%   { stroke-dasharray: 0 1000; opacity: 0; }
+  20%  { opacity: 1; }
   100% { stroke-dasharray: 500 0; opacity: 1; }
 }
-
 @keyframes spider-appear {
-  0% { opacity: 0; transform: scale(0.2) translateY(-40px); }
+  0%   { opacity: 0; transform: scale(0.2) translateY(-40px); }
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.animate-web-form {
-  animation: web-form 1.5s ease-out forwards;
+/* Shimmer sweep */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
 }
 
+/* Subtle pulse ring */
+@keyframes ring-pulse {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  70%  { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Gentle float */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+/* Number count-up mask */
+@keyframes count-up-clip {
+  0%   { clip-path: inset(100% 0 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+
+/* Chart bar grow */
+@keyframes bar-grow {
+  0%   { transform: scaleY(0); transform-origin: bottom; }
+  100% { transform: scaleY(1); transform-origin: bottom; }
+}
+
+/* Stagger children — used via CSS variable --delay */
+@keyframes stagger-in {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Glow pulse for active indicators */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(110, 44, 44, 0.0); }
+  50%       { box-shadow: 0 0 18px 4px rgba(110, 44, 44, 0.12); }
+}
+
+/* Maroon orb accent rotate */
+@keyframes orb-rotate {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.05); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* Line draw (SVG, used in charts) */
+@keyframes line-draw {
+  from { stroke-dashoffset: 1000; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Magnetic card tilt (JS-driven, but CSS perspective set here) */
+.card-magnetic {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.15s cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 0.3s ease;
+}
+.card-magnetic:hover {
+  box-shadow: 0 24px 60px rgba(110, 44, 44, 0.10),
+              0 8px 24px rgba(0,0,0,0.06);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANIMATION UTILITY CLASSES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Base entrance helpers */
+.animate-fade-in-up   { animation: fade-in-up   0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in-down { animation: fade-in-down 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in      { animation: fade-in      0.5s ease both; }
+.animate-slide-left   { animation: slide-in-left  0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-slide-right  { animation: slide-in-right 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-scale-in     { animation: scale-in     0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-float        { animation: float 4s ease-in-out infinite; }
+.animate-glow         { animation: glow-pulse 3s ease-in-out infinite; }
+
+/* Stagger children using nth-child delays */
+.stagger-children > *:nth-child(1)  { animation: stagger-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both; }
+.stagger-children > *:nth-child(2)  { animation: stagger-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both; }
+.stagger-children > *:nth-child(3)  { animation: stagger-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.19s both; }
+.stagger-children > *:nth-child(4)  { animation: stagger-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.26s both; }
+.stagger-children > *:nth-child(5)  { animation: stagger-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.33s both; }
+.stagger-children > *:nth-child(6)  { animation: stagger-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.40s both; }
+.stagger-children > *:nth-child(7)  { animation: stagger-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.47s both; }
+.stagger-children > *:nth-child(8)  { animation: stagger-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.54s both; }
+
+/* Shimmer loading skeleton */
+.shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
+  background-size: 400px 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+/* Intro animation classes */
+.animate-web-form    { animation: web-form    1.5s ease-out forwards; }
 .animate-spider-appear {
   animation: spider-appear 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
   opacity: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   INTERACTIVE ELEMENTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Premium link underline */
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.link-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Premium button press effect */
+.btn-press { transition: transform 0.1s ease, box-shadow 0.1s ease; }
+.btn-press:active { transform: scale(0.97); box-shadow: none; }
+
+/* Subtle grain texture overlay on cards */
+.card-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity: 0.4;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCROLL & VIEWPORT ANIMATIONS (Intersection Observer triggered)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Elements get .is-visible class when they enter the viewport */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1.is-visible { transition-delay: 0.1s; }
+.reveal-delay-2.is-visible { transition-delay: 0.2s; }
+.reveal-delay-3.is-visible { transition-delay: 0.3s; }
+.reveal-delay-4.is-visible { transition-delay: 0.4s; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCROLLBAR STYLING
+   ═══════════════════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #D8D2C6;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: #6E2C2C; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CHART ENHANCEMENTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Recharts SVG path draw-on animation */
+.recharts-line-curve {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: line-draw 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.recharts-rectangle {
+  animation: bar-grow 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Tooltip pop */
+.recharts-tooltip-wrapper {
+  animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PAGE TRANSITION
+   ═══════════════════════════════════════════════════════════════════════════ */
+.page-enter {
+  animation: fade-in-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
