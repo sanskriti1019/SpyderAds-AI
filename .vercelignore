@@ -1,0 +1,7 @@
+scraper/
+database/
+README.md
+DEPLOYMENT.md
+seed.sql
+master_intelligence.sql
+update_schema.sql
