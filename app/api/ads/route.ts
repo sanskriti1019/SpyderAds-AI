@@ -65,13 +65,13 @@ export async function GET(request: NextRequest) {
     if (error) throw error;
 
     let rows = adsData ?? [];
-    const brandMap = new Map((rows as { brands?: { name: string } }[]).map((a) => [a.brand_id, (a as { brands?: { name: string } })?.brands?.name]));
+    const brandMap = new Map((rows as any[]).map((a: any) => [a.brand_id, a.brands?.name]));
 
     const enriched = (rows as any[]).map((a: any) => {
       const { brands, ...rest } = a;
       return {
         ...rest,
-        brand_name: (brands as { name?: string })?.name,
+        brand_name: brands?.name,
         brand_id: rest.brand_id,
       };
     });

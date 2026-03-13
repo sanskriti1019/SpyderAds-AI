@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { SimpleMarkdown } from "@/components/ui/simple-markdown";
 

@@ -29,19 +29,27 @@ export function SimpleMarkdown({ content }: { content: string }) {
         if (headerMatch && headerMatch[1].length <= 4) {
           const depth = headerMatch[1].length;
           const text = headerMatch[2];
-          
-          // If no text, might just be a divider line or accidental tag
           if (!text) return null;
 
-          const Tag = depth === 1 ? "h2" : depth === 2 ? "h3" : "h4";
-          
+          const baseClass = "font-serif text-soft-black tracking-tight";
+          if (depth === 1) {
+            return (
+              <h2 key={idx} className={`${baseClass} text-2xl mt-8 mb-4 border-b border-border/60 pb-3`}>
+                {renderInlines(text)}
+              </h2>
+            );
+          }
+          if (depth === 2) {
+            return (
+              <h3 key={idx} className={`${baseClass} text-xl mt-6 mb-3 font-black`}>
+                {renderInlines(text)}
+              </h3>
+            );
+          }
           return (
-            <Tag key={idx} className={`
-              ${depth === 1 ? "text-2xl mt-8 mb-4 border-b border-border/60 pb-3" : depth === 2 ? "text-xl mt-6 mb-3 font-black" : "text-lg mt-4 mb-2 font-bold"}
-              font-serif text-soft-black tracking-tight
-            `}>
+            <h4 key={idx} className={`${baseClass} text-lg mt-4 mb-2 font-bold`}>
               {renderInlines(text)}
-            </Tag>
+            </h4>
           );
         }
 

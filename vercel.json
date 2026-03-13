@@ -1,21 +1,9 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
   "regions": ["iad1"],
-  "crons": [],
   "functions": {
     "app/api/**/*.ts": {
       "maxDuration": 30
     }
-  },
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "s-maxage=60, stale-while-revalidate=300" }
-      ]
-    }
-  ]
+  }
 }
